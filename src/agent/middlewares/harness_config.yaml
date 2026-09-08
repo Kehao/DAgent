@@ -1,0 +1,53 @@
+# ============================================================
+# Harness DSL（声明式流程配置）
+# 作用：把"流程怎么走"从代码中抽离 —— 改流程 / 改评审口径，不改代码。
+# harness.py 的 load_harness_config() 读取本文件。
+# ============================================================
+
+# 阶段定义（顺序即流转顺序，label 仅供人阅读）
+phases:
+  - name: planning
+    label: "规划中"
+  - name: executing
+    label: "执行中"
+  - name: reviewing
+    label: "审查中"
+  - name: result
+    label: "已完成"
+
+# 评审器配置（由框架 RubricMiddleware 消费）
+review:
+  max_iterations: 2     # 评审不通过最多打回重做几次
+  model: null           # null = 复用主 LLM 当 grader；可覆盖为 provider:model
+
+# 任务类型识别关键词（用于自动选择 rubric）
+# 匹配规则见 harness.py detect_task_type()：命中得分最高者胜，平票取先出现者
+task_types:
+  analysis:
+    keywords: [分析, 对比, 统计, 趋势, 报告, 评估]
+  supplier:
+    keywords: [供应商, 供货, 信用]
+  inventory:
+    keywords: [库存, 入库, 出库, 预警]
+
+# 各任务类型的评审标准（"什么算完成"，grader 逐条对照执行记录打分）
+rubrics:
+  default: |
+    1. 完整回答用户的问题，未遗漏关键信息
+    2. 不编造数据，不输出超出工具返回的信息
+    3. 回答使用简洁、结构化的中文
+
+  analysis: |
+    1. 使用工具获取了真实的供应商或库存数据
+    2. 对数据做了对比或汇总，提炼出关键差异
+    3. 结论有数据支撑，并给出可执行建议
+
+  supplier: |
+    1. 调用了供应商查询工具，展示了供应商名称、信用评级
+    2. 准确转述了工具返回的供货能力信息，未自行发挥
+    3. 给出了供应商选择或合作建议
+
+  inventory: |
+    1. 调用库存工具获取了真实库存数据
+    2. 准确识别了低于安全库存的预警项
+    3. 输出了库存状态总结与补货建议

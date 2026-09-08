@@ -1,0 +1,26 @@
+{
+  "name": "dagent-frontend",
+  "version": "1.0.0",
+  "description": "DAgent 企业级多智能体框架前端 (React + TS + Vite)",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "dependencies": {
+    "lucide-react": "^1.43.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "less": "^4.9.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  }
+}

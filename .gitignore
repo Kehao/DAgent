@@ -1,0 +1,22 @@
+# venv 虚拟环境
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 前端依赖与构建产物
+frontend/node_modules/
+frontend/dist/
+
+# 环境变量（含密钥，不提交）
+.env
+
+# 本地工作数据（记忆/会话）
+.workbuddy/
+
+# 日志
+*.log
+/tmp/
+
+# 系统文件
+.DS_Store

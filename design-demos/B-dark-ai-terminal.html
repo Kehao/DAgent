@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="VMSVTSLAQZQs4GFR5xmKti">
+<head data-page-node-id="edsBqQvaGBegE1okuH79eb">
+<meta charset="UTF-8" data-page-node-id="l5WmtHxYYr6bDCyWm2RIFh" />
+<title>DAgent · 方向 B · 深色 AI 终端派</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" data-page-node-id="ZiGMa88X2z3IIxCzLGzId5" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-page-node-id="nKSWCnf3L1WkZER28qf362" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" data-page-node-id="YnSRrdFKvegkOZlz44i94L" />
+<style>
+  :root {
+    --bg: #07090f;
+    --bg-2: #0c1019;
+    --panel: rgba(20, 26, 40, 0.55);
+    --panel-2: rgba(28, 36, 56, 0.7);
+    --line: rgba(255, 255, 255, 0.08);
+    --line-2: rgba(255, 255, 255, 0.14);
+    --ink: #e8ecf5;
+    --ink-2: #aab3c5;
+    --ink-3: #6b7488;
+    --neon: #4f8bff;          /* 霓虹蓝 */
+    --neon-2: #7aa6ff;
+    --neon-glow: rgba(79, 139, 255, 0.5);
+    --magenta: #d564ff;       /* 辅助霓虹紫 */
+    --cyan: #5be8d4;
+    --success: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, "PingFang SC", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.55;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(800px 400px at 15% -10%, rgba(79,139,255,0.15), transparent 60%),
+      radial-gradient(600px 400px at 95% 110%, rgba(213,100,255,0.10), transparent 60%);
+    background-attachment: fixed;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .grad-text {
+    background: linear-gradient(135deg, var(--neon) 0%, var(--magenta) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+
+  /* ══════ App 4 栏：sidebar | main chat | todo (right) ══════ */
+  .app {
+    display: grid;
+    grid-template-columns: 220px 1fr 300px;
+    grid-template-rows: 56px 1fr auto;
+    grid-template-areas:
+      "brand  topbar  todo-h"
+      "side   chat    todo"
+      "side   composer todo";
+    min-height: 100vh;
+  }
+
+  /* ══════ Brand column header (sidebar 顶部品牌) ══════ */
+  .brand {
+    grid-area: brand;
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 18px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    backdrop-filter: blur(12px);
+  }
+  .brand .logo {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--neon), var(--magenta));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: #fff;
+    box-shadow: 0 4px 20px var(--neon-glow);
+  }
+  .brand .name { font-weight: 700; letter-spacing: -0.01em; }
+  .brand .name span { color: var(--neon-2); }
+
+  /* ══════ Topbar 玻璃态：状态 / 阶段进度条 ══════ */
+  .topbar {
+    grid-area: topbar;
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    backdrop-filter: blur(12px);
+  }
+  .crumb { font-size: 12px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+  .crumb .now { color: var(--ink); font-weight: 500; }
+  .harness {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  .harness .stage { display: flex; align-items: center; gap: 6px; padding: 0 4px; color: var(--ink-3); }
+  .harness .stage.done { color: var(--success); }
+  .harness .stage.run {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .harness .stage.run .ico {
+    background: var(--neon);
+    box-shadow: 0 0 12px var(--neon-glow);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .harness .ico {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--line-2);
+  }
+  .harness .sep { width: 14px; height: 1px; background: var(--line-2); }
+  .harness .sep.done { background: var(--success); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-size: 11px; color: var(--ink-2);
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .pill .dot.amber { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+
+  /* ══════ Sidebar — 导航 / 会话列表 ══════ */
+  .side {
+    grid-area: side;
+    background: var(--panel);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid var(--line);
+    padding: 18px 12px;
+    overflow-y: auto;
+  }
+  .side .sec { margin-bottom: 22px; }
+  .side .sec .t {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-3); padding: 0 8px 8px;
+  }
+  .side .item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--ink-2); font-size: 13px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .side .item:hover { background: rgba(255,255,255,0.04); color: var(--ink); }
+  .side .item.active { background: linear-gradient(90deg, rgba(79,139,255,0.18), rgba(213,100,255,0.10)); color: var(--ink); border: 1px solid rgba(79,139,255,0.25); }
+  .side .item .ico {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--panel-2); border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .side .item.active .ico { background: linear-gradient(135deg, var(--neon), var(--magenta)); color: #fff; border: none; }
+  .side .item .num { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-3); }
+  .side .item.active .num { color: var(--neon-2); }
+
+  /* ══════ Chat (中间主区) ══════ */
+  .chat {
+    grid-area: chat;
+    overflow-y: auto;
+    padding: 32px 24px 12px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .session {
+    font-size: 12px; color: var(--ink-3);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .session .line { flex: 1; height: 1px; background: var(--line); }
+  .msg { max-width: 80%; }
+  .msg .role { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .msg .role .avatar {
+    width: 20px; height: 20px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+  }
+  .msg .role.user .avatar { background: linear-gradient(135deg, var(--neon), var(--magenta)); color: white; }
+  .msg .role.assistant .avatar { background: var(--panel-2); color: var(--neon-2); border: 1px solid var(--line-2); }
+  .msg .bubble {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    line-height: 1.65;
+    font-size: 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(8px);
+  }
+  .msg.user .bubble {
+    background: linear-gradient(135deg, rgba(79,139,255,0.25), rgba(213,100,255,0.15));
+    border-color: rgba(79,139,255,0.3);
+    box-shadow: 0 4px 24px rgba(79,139,255,0.12);
+  }
+  .msg .bubble strong { color: var(--neon-2); font-weight: 600; }
+  .msg .bubble code { font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 4px; font-size: 12.5px; color: var(--cyan); }
+  .msg .bubble .grad { font-weight: 700; }
+
+  /* 工具卡 — 玻璃内嵌 + 状态色 */
+  .tool {
+    align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 8px 16px 8px 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-size: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .tool .ico {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: rgba(79,139,255,0.15); color: var(--neon-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+  }
+  .tool.done .ico { background: rgba(52,211,153,0.15); color: var(--success); }
+  .tool .name { font-family: 'JetBrains Mono', monospace; color: var(--ink); font-weight: 500; }
+  .tool .state { color: var(--ink-3); }
+  .tool .arrow { color: var(--ink-3); }
+
+  /* Interrupt 横幅 — 渐变细线 + 玻璃 */
+  .interrupt {
+    align-self: stretch;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 18px;
+    background: linear-gradient(90deg, rgba(79,139,255,0.18), rgba(79,139,255,0.05));
+    border: 1px solid rgba(79,139,255,0.3);
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    color: var(--ink);
+    position: relative; overflow: hidden;
+  }
+  .interrupt::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(180deg, var(--neon), var(--magenta));
+  }
+  .interrupt .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; background: var(--neon); color: white;
+    border-radius: 999px; font-size: 10px; font-weight: 600;
+  }
+  .interrupt .msg-text { color: var(--ink-2); }
+  .interrupt.revise { background: linear-gradient(90deg, rgba(251,191,36,0.18), rgba(251,191,36,0.05)); border-color: rgba(251,191,36,0.3); }
+  .interrupt.revise::before { background: linear-gradient(180deg, var(--warn), var(--magenta)); }
+  .interrupt.revise .badge { background: var(--warn); }
+
+  /* typing 指示 */
+  .typing { display: inline-flex; gap: 4px; align-items: center; margin-left: 4px; }
+  .typing span { width: 5px; height: 5px; background: var(--neon-2); border-radius: 50%; animation: blink 1.2s ease-in-out infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+  /* ══════ Right column: todo + review ══════ */
+  .todo-h {
+    grid-area: todo-h;
+    padding: 0 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    backdrop-filter: blur(12px);
+    font-size: 12px; color: var(--ink-2);
+  }
+  .todo-h .h { display: flex; align-items: center; gap: 8px; }
+  .todo-h .h b { font-weight: 600; color: var(--ink); }
+  .todo-h .ico { width: 16px; height: 16px; border-radius: 4px; background: linear-gradient(135deg, var(--neon), var(--magenta)); }
+
+  .todo {
+    grid-area: todo;
+    padding: 14px 12px;
+    border-left: 1px solid var(--line);
+    background: var(--panel);
+    backdrop-filter: blur(12px);
+    overflow-y: auto;
+  }
+  .todo .pbar {
+    height: 3px; background: var(--line); border-radius: 999px; overflow: hidden; margin-bottom: 14px;
+  }
+  .todo .pbar > span {
+    display: block; height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--neon), var(--magenta));
+    width: 50%;
+    box-shadow: 0 0 8px var(--neon-glow);
+  }
+  .todo .item {
+    display: flex; gap: 10px;
+    padding: 12px 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .todo .item.done { opacity: 0.55; }
+  .todo .item.done .t { text-decoration: line-through; color: var(--ink-3); }
+  .todo .item .ico {
+    width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 1.5px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: transparent;
+  }
+  .todo .item.done .ico { background: var(--success); border-color: var(--success); color: white; }
+  .todo .item.run .ico {
+    border-color: var(--neon); border-top-color: transparent;
+    animation: spin 1s linear infinite;
+  }
+  .todo .item .t { color: var(--ink); line-height: 1.45; }
+  .todo .item .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--ink-3); margin-top: 3px;
+    letter-spacing: 0.04em;
+  }
+  .todo .item.run .t { color: var(--ink); font-weight: 500; }
+  .todo .item.run { border-color: rgba(79,139,255,0.35); background: rgba(79,139,255,0.05); }
+
+  /* ══════ Composer (bottom of chat) ══════ */
+  .composer {
+    grid-area: composer;
+    padding: 16px 24px 20px;
+    background: var(--panel);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  .composer-inner {
+    max-width: 780px; margin: 0 auto;
+    position: relative;
+  }
+  .composer .box {
+    display: flex; align-items: flex-end; gap: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--line-2);
+    border-radius: 22px;
+    padding: 10px 10px 10px 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .composer .box:focus-within {
+    border-color: var(--neon);
+    box-shadow: 0 0 0 4px rgba(79,139,255,0.18), 0 8px 30px rgba(0,0,0,0.3);
+  }
+  .composer textarea {
+    flex: 1; border: none; outline: none; resize: none;
+    background: transparent; color: var(--ink);
+    font: inherit; font-size: 14px; line-height: 1.5;
+    padding: 6px 0;
+  }
+  .composer .ph { color: var(--ink-3); }
+  .composer .send {
+    width: 40px; height: 40px; border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--neon), var(--magenta));
+    color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px var(--neon-glow);
+    transition: transform 0.15s;
+  }
+  .composer .send:hover { transform: translateY(-1px) scale(1.04); }
+  .composer .send:disabled { background: var(--line-2); color: var(--ink-3); box-shadow: none; cursor: not-allowed; }
+
+  /* 提示词面板 — 玻璃卡片 */
+  .suggest {
+    position: absolute;
+    left: 0; right: 0; bottom: calc(100% + 10px);
+    background: var(--panel-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    padding: 12px 0 6px;
+    max-height: 46vh; overflow-y: auto;
+  }
+  .suggest .sh {
+    padding: 0 18px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+  }
+  .suggest .sh .t { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; }
+  .suggest .sh .ico {
+    width: 18px; height: 18px; border-radius: 5px;
+    background: linear-gradient(135deg, var(--neon), var(--magenta));
+  }
+  .suggest .sh .h { font-size: 11px; color: var(--ink-3); }
+  .suggest .group { padding: 8px 0; }
+  .suggest .gt {
+    padding: 4px 18px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .suggest .gt .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon); }
+  .suggest .gt.warn .dot { background: var(--warn); }
+  .suggest .item {
+    display: block; width: calc(100% - 36px);
+    margin: 1px 18px;
+    padding: 9px 12px;
+    background: transparent; border: none; text-align: left;
+    font: inherit; font-size: 13px; color: var(--ink-2);
+    border-radius: var(--radius-sm);
+    cursor: pointer; line-height: 1.5;
+  }
+  .suggest .item:hover { background: rgba(79,139,255,0.10); color: var(--ink); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.15); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+</style>
+</head>
+<body data-page-node-id="rk61Gw372cDugG2t6gnyCi">
+<div class="app" data-page-node-id="Ff4itDqXPqAbSHfAfCFJJA">
+
+  <!-- Brand column -->
+  <div class="brand" data-page-node-id="MLdRDpTy9qSitqH3dtXpUZ">
+    <div class="logo" data-page-node-id="SQrWFMX7LeUe02CYhxAjrG">D</div>
+    <div class="name" data-page-node-id="zI0bJirNahT0pXl8ZmfDDO">D<span data-page-node-id="wJsb3vUylRkxZyRwPNEEAi">Agent</span></div>
+  </div>
+
+  <!-- Topbar: 阶段 + 状态 -->
+  <div class="topbar" data-page-node-id="X72T5uWdxvIfUDU2ttzSIe">
+    <div class="crumb" data-page-node-id="qjk0t5zPfrStkK296UooVP">
+      <span data-page-node-id="XbAQim9IMUAKlLVNFfr28l">Procurement</span> / <span class="now" data-page-node-id="66UKJymvrY1pgiC4Gpq919">摩托车零部件采购助手</span>
+    </div>
+    <div class="harness" style="margin-left: 24px;" data-page-node-id="7zdlBu1P7mwCfREmphsvgp">
+      <div class="stage done" data-page-node-id="ogWwA24KRxUXnoVtYnrI9V"><span class="ico" data-page-node-id="2g2VvYTvblKua85tEwrSt5"></span>思考</div>
+      <div class="sep done" data-page-node-id="bAIde5GMwMZgKkjI7kGgwJ"></div>
+      <div class="stage done" data-page-node-id="miA3dE5B9J6kifSpJz1PMg"><span class="ico" data-page-node-id="4RTRpW3i2mdKz7H2ODi0Eq"></span>规划</div>
+      <div class="sep done" data-page-node-id="7VH57W6r8kbYeoCcMwDsMR"></div>
+      <div class="stage run" data-page-node-id="OyGJ2ZObfmhij6sqFjWNZN"><span class="ico" data-page-node-id="vdaCx2lRNBkipUCyXLOO3J"></span>执行</div>
+      <div class="sep" data-page-node-id="HAqzLh13XucM8b5q2juEYk"></div>
+      <div class="stage" data-page-node-id="ffBmDDdJRXrYD0JHsjPlL0"><span class="ico" data-page-node-id="WdkcdV37AB60LfoJzOW8MD"></span>审查</div>
+      <div class="sep" data-page-node-id="DhpJH9k65KEFk3uXU0wfxz"></div>
+      <div class="stage" data-page-node-id="7Fq4DlCXPdieAARxKjVV3s"><span class="ico" data-page-node-id="FqOtdr8iCQw8zWGAs56YEf"></span>完成</div>
+    </div>
+    <div class="topbar-right" data-page-node-id="Tw5XdLokLQre1mCjeAjb3H">
+      <div class="pill" data-page-node-id="OqBfvQdaqB6dAeXHBk1t1p"><span class="dot" data-page-node-id="Wa2OB7ZpcBdfByPHUkC98H"></span>MCP :9100</div>
+      <div class="pill" data-page-node-id="TV35CneRsDQFSHW2oSQ37b"><span class="dot amber" data-page-node-id="8PouB04BJMwqyh2CBrHpaO"></span>qwen-plus</div>
+      <div class="pill mono" data-page-node-id="Am1qX7ioYfdPXk9AUsozVm">SSE · 9 events</div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="side" data-page-node-id="5rYzrOnIUMTmwgBejRqk1z">
+    <div class="sec" data-page-node-id="FvpdaC2wvKXDbJ1rmPdEkH">
+      <div class="t" data-page-node-id="C3bUVWjlqzXK0D5SvI2Os1">能力</div>
+      <div class="item active" data-page-node-id="DEepP9opGsFSc9d6jCND8S">
+        <div class="ico" data-page-node-id="IxD0RQEP7GSBiz5TuVN2Ks">✦</div>
+        <span data-page-node-id="GgAAA4wW84g7ajH96kSHCz">委派分析</span>
+        <div class="num" data-page-node-id="BGy7eehW16gco12spEHDQM">6</div>
+      </div>
+      <div class="item" data-page-node-id="PfJEsXLiKYtzqiY3ONlQ9u">
+        <div class="ico" data-page-node-id="OU3kJw2geJFWBV2J5EOEJS">◎</div>
+        <span data-page-node-id="EQaY658eUpOMa6oX8sJMwb">日常查询</span>
+        <div class="num" data-page-node-id="xg2P2TKG9iGnI7eIwMSdHv">4</div>
+      </div>
+      <div class="item" data-page-node-id="1UT99e4XYKzUUqXDqACWPw">
+        <div class="ico" data-page-node-id="JJCl3BmRBzymXN9NDPQbY2">⚠</div>
+        <span data-page-node-id="QgmnlRXgdwUnbwpa0W78lB">库存与风险</span>
+        <div class="num" data-page-node-id="qIBDMdKYdDcstcsN7SZObU">5</div>
+      </div>
+    </div>
+    <div class="sec" data-page-node-id="sl71HQ9hr4O4yVLwbg2X7X">
+      <div class="t" data-page-node-id="4V52wBrC6cFOlZreCuVggk">本次会话</div>
+      <div class="item" data-page-node-id="RFWasaY0HoPgyef7vmwOgC">
+        <div class="ico" data-page-node-id="xGwISyWPQBp16MIPpsFawW">📄</div>
+        <span data-page-node-id="qgaVHo5f3zYr0ab36oB6LS">三链条比价</span>
+        <div class="num" data-page-node-id="qipZSVcVBTeEv5cMDbw2Nx">2/4</div>
+      </div>
+      <div class="item" data-page-node-id="pLSNI16wbjoVEpCK0fKADw">
+        <div class="ico" data-page-node-id="ZdwT5pohAeD6yo6wjWLClT">📄</div>
+        <span data-page-node-id="yU2ys47zhpZDCN8oua2UnL">S003 vs S005</span>
+      </div>
+      <div class="item" data-page-node-id="labfJgfAgDjky0DCxmBC9t">
+        <div class="ico" data-page-node-id="wGPDdC4GGZpMhpgDey9v0j">📄</div>
+        <span data-page-node-id="HjNZCf6QUlFctwrHdrARhT">全 8 家信用评级</span>
+      </div>
+    </div>
+    <div class="sec" data-page-node-id="XV7YmzrnsNqokjaKt5lFR4">
+      <div class="t" data-page-node-id="1YWzxUV1tddlGg2eXgBNCh">数据</div>
+      <div class="item" data-page-node-id="Y7iykqABVRy2cZ9PD5H9e7">
+        <div class="ico" data-page-node-id="OFMIPGOaiBOA457Hegp33m">⌬</div>
+        <span data-page-node-id="698QSgBW9lvsdM840SPwVd">8 供应商 / 11 零件</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Chat -->
+  <section class="chat" data-page-node-id="qQDMbrebS1At2M4pkRtOOA">
+    <div class="session" data-page-node-id="5W6SQ60BNeV8VPaIY3g7IK">
+      <span data-page-node-id="gBQyVlKhTDG6sAj5ackwGt">采购助理 · 多智能体委派会话</span>
+      <div class="line" data-page-node-id="gcH9WvthG18PiQ2fPQoJkJ"></div>
+      <span class="mono" data-page-node-id="soGVWpI7P6VoiKhUdpw3HI">11:42:08</span>
+    </div>
+
+    <div class="msg user" data-page-node-id="fDu8RKIHtmhvpbJLq3ziFx">
+      <div class="role user" data-page-node-id="F5NH3VFFLWlCnPh9Zqqm9j"><div class="avatar" data-page-node-id="3ivgZcFTU6z3B0UR8UZpDf">你</div>你</div>
+      <div class="bubble" data-page-node-id="rhdyuOKWgHA83QMJXKFt2z">高强度链条有三家货源 <code data-page-node-id="vngbFr2Ynhvm0Xjc8slmOE">S001(65元)</code>、<code data-page-node-id="jRSzrP2kxjWgAjdGtWxkCz">S008(58元)</code>、<code data-page-node-id="rwUXwCNMWt9x31kCVr4Tv5">S002(70元)</code>，对比价格、质量合格率与交付能力，推荐最合适的一家。</div>
+    </div>
+
+    <div class="interrupt" data-page-node-id="RaD8SOk1O60lD6RrUPlGKl">
+      <div class="badge" data-page-node-id="UJfBNOTovJKDWeOggbbsxm">SUBAGENT</div>
+      <span class="msg-text" data-page-node-id="Bf7UagdsoKs3vKYrFr0Thz">主 Agent 已将分析任务委派给 <strong data-page-node-id="mXQTCNiiGTr3d3qw9COUrT">supplier-analyst</strong>，正在独立调 MCP 工具…</span>
+    </div>
+
+    <div class="tool done" data-page-node-id="F2UsKNeV4uGDGGxE4Wd1LS">
+      <div class="ico" data-page-node-id="lGodNuu1rd3hxdxzBrGO0B">✓</div>
+      <span class="name" data-page-node-id="Z0LVqMnO8pzk3AGsTz52Xe">supplier_search</span>
+      <span class="arrow" data-page-node-id="VIlagey2Gx6Dzus9ed4jkp">→</span>
+      <span class="state" data-page-node-id="sEOYyQCPLEpAzzfwvQSrLO">3 家候选已返回</span>
+    </div>
+    <div class="tool" data-page-node-id="CKSUYAKUFVe6V0jIWAUtmz">
+      <div class="ico" data-page-node-id="4lNZGey5JVT813NFAAnISj">⟳</div>
+      <span class="name" data-page-node-id="Kpce506TglAjuMGvabLkvA">part_search</span>
+      <span class="arrow" data-page-node-id="75WVYAWqzDggIbfrKwoaNG">→</span>
+      <span class="state" data-page-node-id="3Wykx8vbjgrpqEI25I5XxG">查询 P001 在三家的库存与单价…</span>
+    </div>
+
+    <div class="msg assistant" data-page-node-id="B8Ray5UCS8ZbEBhtCWEO0c">
+      <div class="role assistant" data-page-node-id="oooGWEFKmwxOY0rypkHRUe"><div class="avatar" data-page-node-id="EBy9qN7ximJWOFImJaqMry">⊕</div>supplier-analyst · 子 Agent</div>
+      <div class="bubble" data-page-node-id="bxIVGCQsOYCWKfvsL41Anx">
+        <span class="grad" data-page-node-id="P6G9hgvR9Ri05u48zQ9HRl">初步结论</span>：综合 <strong data-page-node-id="ErgnAv3gYyFN1YYe45wFyJ">价格</strong>、<strong data-page-node-id="G6FsCSZ2bhCRQLLnikufCQ">qualityPassRate</strong>、<strong data-page-node-id="WR4WrII4KFHjRYtGFC9fnc">onTimeDeliveryRate</strong> 三维度，
+        <code data-page-node-id="JC6lH7I5Zag4fsLaCTHTU8">S001</code> 96.5% 交付稳定性最优；<code data-page-node-id="VrRZsJELnhdO3JGRXG1YPe">S008</code> 报价最低但合作仅 1 年；<code data-page-node-id="r9ntnswmf6mM8ma8F2zPBd">S002</code> 评级 A + 合作 6 年，是关键件的更稳选择<span class="typing" data-page-node-id="DqGFAIQSh0308EaqSa68Xu"><span data-page-node-id="RHmLXFwrvroCHRcw2BxP2Y"></span><span data-page-node-id="weX8ZgiubgTMRemQ64TGoC"></span><span data-page-node-id="pDn3GLhZ15AsfsPlZhxgkh"></span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right column: Todo panel -->
+  <div class="todo-h" data-page-node-id="6HFQgl3WPhLd7o9yghaCkR">
+    <div class="h" data-page-node-id="c4wLpyIb5pFWbdo1PK4EO0"><div class="ico" data-page-node-id="2xbjYzUk4tjs5p9j9sZtzw"></div><b data-page-node-id="88ZazUKJnmG6e9rzmupkUF">Task Plan</b></div>
+    <span class="mono" data-page-node-id="KDE9Qgs5wvaetEqeHsckhk">2 / 4</span>
+  </div>
+  <aside class="todo" data-page-node-id="fejATm8eMvHet5BiB0MG9C">
+    <div class="pbar" data-page-node-id="s0r1neZCmQ26iUXBRYszWo"><span data-page-node-id="NMIsLDnkpoAEaCE9KOyeuE"></span></div>
+    <div class="item done" data-page-node-id="bGZbqTJjCSQUeHM1loiLgF">
+      <div class="ico" data-page-node-id="H9uXuswPLdKnMiMhdx68HW">✓</div>
+      <div data-page-node-id="7BgDAWLVCmLotYE5E7G3yJ">
+        <div class="t" data-page-node-id="Zb3IfTfiuUyC0dquAXn1bU">理解问题：三家高强度链条比价</div>
+        <div class="meta" data-page-node-id="rBm9b8n7ASf0HRmhOJSBFH">think · 0.3s</div>
+      </div>
+    </div>
+    <div class="item done" data-page-node-id="bONovTPkukIJsTwhfUiCSj">
+      <div class="ico" data-page-node-id="vlMxahoHUVqvdrgi4t89fF">✓</div>
+      <div data-page-node-id="7ZMMQOcKLcpdp6dkqW3oJF">
+        <div class="t" data-page-node-id="fMLHLPzz25Emk3v7eQmjcp">supplier_search 拉取 S001 / S008 / S002 档案</div>
+        <div class="meta" data-page-node-id="3uxHd09SzN0wGtJaSUtRpe">tool · 0.6s · 3 results</div>
+      </div>
+    </div>
+    <div class="item run" data-page-node-id="7wYsvawRwgCA0fN0jF6E4X">
+      <div class="ico" data-page-node-id="AEPgqveaMq1ceDrB1r90bC"></div>
+      <div data-page-node-id="ZOc5cvzdhxRuVRxAYX6ClS">
+        <div class="t" data-page-node-id="JKU5tXGUZ81w7djRUjcOa8">part_search 对比 P001 在三家库存与单价</div>
+        <div class="meta" data-page-node-id="j1yDFhIQn5cxGoilDDoWsQ">tool · running · MCP:9100</div>
+      </div>
+    </div>
+    <div class="item" data-page-node-id="mwMRhfM4jMp3DTmscgCbKW">
+      <div class="ico" data-page-node-id="4T83hlO0WoaYMLWD3DSkxj"></div>
+      <div data-page-node-id="DxglxCmKzTzNucBPqMCB2I">
+        <div class="t" data-page-node-id="O71UpUlIQDsp2R4HXsckBT">Rubric 评审 · 输出对比表与推荐</div>
+        <div class="meta" data-page-node-id="0n1dsBDlrzB8nIuAOmJPPD">review · pending · iter 1</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Composer -->
+  <footer class="composer" data-page-node-id="306DWz7i2fi3GDQMmFI3nD">
+    <div class="composer-inner" data-page-node-id="uCmSIJKdGOpJdQbutR9fTi">
+      <div class="suggest" data-page-node-id="VEBaib99pyvk6vSmcKR43I">
+        <div class="sh" data-page-node-id="S7yuAr2DHH1ZCoWHHXLKcu">
+          <div class="t" data-page-node-id="yIV99rD2vQ9kBTT0JyOT53"><div class="ico" data-page-node-id="FwRAWRFZrHELFIrHGH8JmX"></div>试试这样问</div>
+          <div class="h" data-page-node-id="h9CN7VuSwvOY8HfAFDe42p">点击填入 · 可编辑后回车发送</div>
+        </div>
+        <div class="group" data-page-node-id="dZQkUsqar9n8kwnnSw5EcC">
+          <div class="gt" data-page-node-id="bUITlWkhDDNWYGrxj8G0ld"><span class="dot" data-page-node-id="wUMGpY5jwEDb5P2ednQQbP"></span>委派分析 · supplier-analyst</div>
+          <button class="item" data-page-node-id="LZkAty0kmmqwJPs3Pi32T9">对比后视镜供应商 S003 与 S005：价格、供货能力、合作风险三角度</button>
+          <button class="item" data-page-node-id="jc94MNVtnmJ5DiGCvf3mpt">高强度链条 S001 / S008 / S002 三家比价，推荐最合适</button>
+          <button class="item" data-page-node-id="XzHCCcGn5Xf81bbiXYUMJO">对全部 8 家供应商做信用评级分析：评级分 / 合格率 / 准时交付率排序</button>
+        </div>
+        <div class="group" data-page-node-id="FMFUbZGR8NK96HNCycPaXS">
+          <div class="gt" data-page-node-id="6tw7zON6UYbzCF65qEsexj">日常查询</div>
+          <button class="item" data-page-node-id="C7WfsZ5gpFBYK6zyGzBq7O">钱江 S002 都供应哪些零件？各自的单价与库存</button>
+        </div>
+        <div class="group" data-page-node-id="7xnM05476s7T3k6LLFwOwf">
+          <div class="gt warn" data-page-node-id="nRAJjXHyncIhSpGqVdV3t9"><span class="dot" data-page-node-id="JTm9NDpsfTLWSqoybfoE1N"></span>库存与风险排查</div>
+          <button class="item" data-page-node-id="4uoIuouP5dEIT8SFkDh9mZ">盘式制动卡钳库存为 0，查它的供应商是否还在合作？会不会断供</button>
+        </div>
+      </div>
+      <div class="box" data-page-node-id="UtP3DEvG81kdb7S03gEN4Q">
+        <textarea rows="2" placeholder="点击输入框查看常用提示词；或直接提问（Enter 发送，Shift+Enter 换行）" class="ph"></textarea>
+        <button class="send" data-page-node-id="hcF5PVDSHIbKD9UQx7mdrL">↗</button>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,818 @@
+/* ============================================================
+   DAgent 企业级多智能体框架 —— 全局样式（C 工业装配线派）
+   设计 DNA：奶白纸感底 / 炭黑顶栏 / 暖橙 accent / 极锐圆角 /
+            硬阴影 neo-brutalism / Newsreader 衬线 + IBM Plex Sans +
+            JetBrains Mono / 细横线背景纹理（行间注释感）
+
+   字号规范（可读性硬底线）：
+     正文 ≥14px / 标签 ≥12px / 元数据 ≥10px（仅 mono 才允许 10px）
+   ============================================================ */
+
+/* ---------- 1) 变量区：色板 / 字体 / 圆角 / 阴影 ---------- */
+@paper:        #f3ede0;        /* 奶白主底 */
+@paper-2:      #ebe3d2;        /* 次底（todo 区、浅带） */
+@paper-3:      #e2d8c2;        /* 更深底（hover/active） */
+@ink:          #1a1a1a;        /* 炭黑主字 / 顶栏 */
+@ink-2:        #3a3a3a;
+@ink-3:        #5a5a5a;
+@ink-4:        #8a8a8a;
+@line:         #c4b89c;        /* 牛皮纸边线 */
+@line-2:       #a89977;
+@orange:       #e8772e;        /* 暖橙 accent（执行中 / send） */
+@orange-2:     #c45a1a;        /* 暖橙深（hover/active） */
+@orange-bg:    #fbe7d2;
+@rust:         #a83a1a;        /* 锈红（返工 interrupt） */
+@olive:        #5a6b3b;        /* 橄榄绿（已完成） */
+@olive-bg:     #e8e7c8;
+@mustard:      #c4a14a;        /* 芥末黄（默认 interrupt） */
+@mustard-bg:   #f7eecf;
+@steel:        #3d4f5a;        /* 钢蓝灰（次要状态） */
+@steel-bg:     #d6dce0;
+
+@radius:       4px;
+@radius-sm:    2px;
+
+/* 硬阴影（neo-brutalism 工业感） */
+@shadow-card:  3px 3px 0 @ink;
+@shadow-big:   4px 4px 0 @ink;
+@shadow-btn:   3px 3px 0 @ink;
+@shadow-inset: inset 0 -2px 0 fade(@ink, 30%);
+
+/* 字体堆叠 */
+@ff-serif: 'Newsreader', Georgia, "PingFang SC", serif;
+@ff-sans:  'IBM Plex Sans', -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+@ff-mono:  'JetBrains Mono', ui-monospace, "Menlo", monospace;
+
+@bg-stripe: repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(0,0,0,0.025) 23px, rgba(0,0,0,0.025) 24px);
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root { height: 100%; }
+
+body {
+  font-family: @ff-sans;
+  font-size: 14px;
+  line-height: 1.55;
+  color: @ink;
+  background: @paper;
+  background-image: @bg-stripe;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;  /* 单页应用：滚动全部收敛到 chat/todo 内部，防 absolute 面板随 body 位移 */
+}
+
+/* 通用工具类 */
+.serif { font-family: @ff-serif; }
+.mono  { font-family: @ff-mono; }
+
+/* ---------- 2) 整体布局：纵向 4 段（顶栏 / 装配线 / 中部 / 输入栏） ---------- */
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;   /* 作为 todo 面板 absolute 定位的参照系 */
+}
+
+/* ---------- 3) 顶栏：黑底白字 + 暖橙底边（工业铭牌头） ---------- */
+header {
+  background: @ink;
+  color: @paper;
+  padding: 14px 28px 12px;
+  border-bottom: 3px solid @orange;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "logo  titles meta"
+    "arch  arch   arch"
+    "arch2 arch2  arch2";
+  column-gap: 16px;
+  row-gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+
+  h1 {
+    display: flex; align-items: center; gap: 14px;
+    font-family: @ff-serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    /* 标题内的副信息要单独展示，所以 h1 只放主名 */
+  }
+
+  .logo {
+    width: 44px; height: 44px;
+    border: 2px solid @orange;
+    display: flex; align-items: center; justify-content: center;
+    font-family: @ff-serif; font-style: italic; font-weight: 700;
+    font-size: 24px; color: @orange;
+    border-radius: @radius-sm;
+    background: @ink;
+    flex-shrink: 0;
+    grid-area: logo;
+  }
+
+  .titles { line-height: 1.15; flex-shrink: 1; min-width: 0; grid-area: titles; }
+  .titles .t1 {
+    font-family: @ff-serif; font-weight: 600; font-size: 20px;
+    letter-spacing: -0.01em;
+    color: @paper;
+    white-space: nowrap;
+  }
+  .titles .t1 em { font-style: italic; color: @orange; padding: 0 2px; }
+  .titles .t2 {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: @ink-4;
+    margin-top: 4px;
+    font-family: @ff-sans;
+    white-space: nowrap;
+  }
+
+  .meta {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 11px;
+    flex-shrink: 0;
+    grid-area: meta;
+  }
+  .meta .item {
+    display: flex; align-items: center; gap: 4px;
+    color: @paper-2;
+    font-family: @ff-sans;
+    white-space: nowrap;
+  }
+  .meta .item .v { color: @orange; font-weight: 600; font-family: @ff-mono; }
+  .meta .item .dot { width: 6px; height: 6px; border-radius: 50%; background: @olive; }
+
+  /* arch 行：等宽小字 + 工业 chip，独占 header 第二行 */
+  .arch {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px;
+    grid-area: arch;
+    font-family: @ff-mono;
+    font-size: 11px;
+    color: @ink-4;
+  }
+  /* 第二行 arch（编排）：单独占 header 第三行 */
+  .arch-2 { grid-area: arch2; }
+  .arch .lbl {
+    font-family: @ff-serif; font-style: italic; font-size: 12px;
+    color: @paper-2;
+    margin-right: 4px;
+  }
+  .arch .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 1px 8px;
+    background: transparent;
+    border: 1px solid @ink-3;
+    border-radius: @radius-sm;
+    color: @paper-2;
+  }
+  .arch .chip.run {
+    border-color: @orange;
+    color: @orange;
+    background: fade(@orange, 12%);
+  }
+  .arch .arrow { color: @ink-4; }
+  .arch .sep { color: @ink-4; padding: 0 4px; }
+}
+
+/* ---------- 4) 装配线进度条（HarnessPhaseBar） ---------- */
+.phase-bar {
+  background: @paper-2;
+  border-bottom: 2px solid @line;
+  padding: 16px 28px;
+  position: relative;
+  flex-shrink: 0;
+  /* 虚线传送带贯穿（背景层） */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, @ink 0 6px, transparent 6px 12px);
+    transform: translateY(-2px);
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .phase-line-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0;
+    position: relative;
+  }
+
+  /* 单个站点（icon + label + 编号） */
+  .phase-station {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    position: relative;
+    z-index: 1;
+    background: @paper-2;  /* 覆盖下方虚线 */
+    padding: 0 4px;
+  }
+  .phase-ico {
+    width: 52px; height: 52px;
+    border-radius: @radius;
+    background: @paper;
+    border: 2px solid @line-2;
+    display: flex; align-items: center; justify-content: center;
+    color: @ink-3;
+    transition: all 0.3s;
+    svg { width: 24px; height: 24px; }
+  }
+  /* 已过：橄榄绿底 */
+  .phase-station.past .phase-ico {
+    background: @olive-bg;
+    border-color: @olive;
+    color: @olive;
+  }
+  /* 当前：暖橙底 + 硬阴影 + 抬升 */
+  .phase-station.current .phase-ico {
+    background: @orange;
+    border-color: @orange-2;
+    color: white;
+    box-shadow: 0 4px 0 @orange-2;
+    transform: translateY(-2px);
+    svg { animation: gear-spin 2s linear infinite; }
+  }
+  /* 未来：默认灰 */
+  .phase-station.future .phase-ico {
+    background: @paper;
+    border-color: @line-2;
+    color: @ink-3;
+  }
+
+  .phase-name {
+    font-family: @ff-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: @ink-3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .phase-station.past .phase-name { color: @olive; }
+  .phase-station.current .phase-name { color: @orange-2; }
+
+  /* 编号 01-05 角标 */
+  .phase-idx {
+    position: absolute;
+    top: -8px; right: -8px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: @ink;
+    color: @paper;
+    display: flex; align-items: center; justify-content: center;
+    font-family: @ff-mono;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .phase-station.past .phase-idx { background: @olive; }
+  .phase-station.current .phase-idx { background: @orange; }
+
+  /* 传送带段：站点间连接线 */
+  .phase-conveyor {
+    flex: 1;
+    height: 4px;
+    background: @line;
+    align-self: flex-start;
+    margin-top: 24px;
+    margin-left: -6px;
+    margin-right: -6px;
+    position: relative;
+  }
+  .phase-conveyor.past { background: @olive; }
+  .phase-conveyor.run {
+    background: @ink;
+    background-image: repeating-linear-gradient(90deg, @orange 0 12px, @ink 12px 24px);
+    animation: belt 1.4s linear infinite;
+  }
+  .phase-conveyor.future { background: @line; }
+
+  /* 底部状态行 */
+  .phase-foot {
+    margin-top: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    font-size: 12px;
+    color: @ink-3;
+  }
+  .phase-foot .label {
+    font-family: @ff-serif;
+    font-style: italic;
+  }
+  .phase-foot .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 10px;
+    border: 1px solid @ink;
+    background: @paper;
+    border-radius: 999px;
+    font-family: @ff-mono;
+    font-size: 11px;
+    color: @ink;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .phase-foot .badge.run {
+    border-color: @orange;
+    color: @orange-2;
+    background: @orange-bg;
+  }
+  .phase-foot .badge.warn {
+    border-color: @rust;
+    color: @rust;
+    background: fade(@rust, 10%);
+  }
+}
+
+/* ---------- 5) 聊天区：黑底用户气泡 / 工业铭牌工具卡 / 黄底 interrupt ---------- */
+.chat-area {
+  flex: 1;
+  min-height: 0;   /* flex 子项可压缩：超高时内部滚动，不撑高 .app 造成 body 滚动 */
+  overflow-y: auto;
+  padding: 24px 28px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* todo 面板已改可拖拽绝对定位，chat 全宽展示 */
+  margin-right: 0;
+}
+
+.msg {
+  max-width: 82%;
+  .role {
+    font-family: @ff-mono;
+    font-size: 10px;
+    color: @ink-3;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .bubble {
+    padding: 12px 16px;
+    border-radius: @radius;
+    line-height: 1.6;
+    font-size: 14px;
+    border: 1px solid @line;
+    /* 保留 LLM 输出里的 \n 换行（pre-line：换行生效、连续空格合并，
+       视觉等价于文本编辑器，避免 pre-wrap 把多余空格也露出来） */
+    white-space: pre-line;
+    /* 防长 URL/英文/标识符在窄宽下溢出 */
+    overflow-wrap: anywhere;
+  }
+  /* 用户：黑底白字，em 暖橙 */
+  &.user {
+    align-self: flex-end;
+    .bubble {
+      background: @ink;
+      color: @paper;
+      border-color: @ink;
+      em { font-style: italic; color: @orange; }
+    }
+  }
+  /* 助手：白底 + 强强调暖橙 */
+  &.assistant {
+    align-self: flex-start;
+    .bubble {
+      background: @paper;
+      color: @ink;
+      strong { color: @orange-2; font-weight: 700; }
+      em { font-family: @ff-serif; font-style: italic; }
+    }
+    .bubble .tnum {
+      font-family: @ff-mono;
+      font-weight: 600;
+      color: @rust;
+    }
+    .bubble ul { margin: 6px 0 0 18px; }
+    .bubble li { margin: 3px 0; }
+  }
+}
+
+/* 工具卡：neo-brutalism 黑边硬阴影 + 编号方块 */
+.tool-card {
+  align-self: flex-start;
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 14px 8px 8px;
+  background: @paper;
+  border: 1.5px solid @ink;
+  border-radius: @radius;
+  box-shadow: 3px 3px 0 @ink;
+  font-size: 12px;
+  max-width: 78%;
+
+  .tool-ico {
+    width: 28px; height: 28px;
+    background: @ink; color: @orange;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+    border-radius: @radius-sm;
+  }
+  &.done .tool-ico { background: @olive; color: white; }
+  &.running .tool-ico { background: @orange; color: white; }
+
+  .tool-body { display: flex; flex-direction: column; gap: 2px; }
+  .tool-name { font-family: @ff-mono; color: @ink; font-weight: 600; }
+  .tool-state { color: @ink-3; font-size: 11px; }
+  .tool-tag {
+    font-family: @ff-mono; font-size: 10px;
+    padding: 1px 6px; background: @paper-2; color: @ink-3;
+    border: 1px solid @line; border-radius: @radius-sm;
+  }
+}
+
+/* 错误条：rust 锈红 + 硬阴影 */
+.error {
+  align-self: flex-start;
+  background: fade(@rust, 8%);
+  border: 1.5px solid @rust;
+  color: @rust;
+  padding: 10px 14px;
+  border-radius: @radius;
+  box-shadow: 3px 3px 0 @rust;
+  font-size: 13px;
+  max-width: 78%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: @ff-mono;
+}
+
+/* ---------- 6) 任务规划面板（TodoListPanel）：绝对定位 + 可拖拽 ---------- */
+/* 定位参照系 = .app（position: relative）。默认落在右上；
+   按住 todo-head 拖动后，由 React 写入 inline left/top 覆盖默认位置。 */
+.todo-panel {
+  position: absolute;
+  top: 184px;  /* header 约 80 + 装配线 104 */
+  right: 16px;
+  width: 264px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  background: @paper-2;
+  border: 1.5px solid @ink;
+  border-radius: @radius;
+  box-shadow: 4px 4px 0 @ink;
+  overflow: hidden;
+  animation: panel-slide-in 0.3s ease-out;
+
+  .todo-head {
+    padding: 12px 14px;
+    border-bottom: 1.5px solid @ink;
+    display: flex; align-items: center; justify-content: space-between;
+    background: @ink;
+    color: @paper;
+    cursor: grab;            /* 整个头部 = 拖拽手柄 */
+    user-select: none;       /* 拖动时不选中文本 */
+    touch-action: none;      /* 触屏拖动不触发页面滚动 */
+    &:active { cursor: grabbing; }
+    .todo-title {
+      display: flex; align-items: center; gap: 6px;
+      font-family: @ff-serif;
+      font-style: italic;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: @paper;
+    }
+    .todo-count {
+      font-family: @ff-mono;
+      background: @orange;
+      color: white;
+      padding: 1px 8px;
+      border-radius: @radius-sm;
+      font-size: 11px;
+      font-weight: 600;
+    }
+  }
+
+  /* 进度条：斜纹橄榄绿填充 */
+  .todo-bar {
+    height: 6px;
+    background: @paper-3;
+    border-bottom: 1px solid @line;
+    position: relative;
+    overflow: hidden;
+  }
+  .todo-bar > span {
+    display: block;
+    height: 100%;
+    background: repeating-linear-gradient(45deg, @olive 0 6px, #4a5b2b 6px 12px);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .todo-list {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+  .todo-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px dashed @line;
+    font-size: 12.5px;
+    transition: background 0.2s;
+    &:last-child { border-bottom: none; }
+    .todo-num {
+      flex-shrink: 0;
+      width: 24px; height: 24px;
+      border: 1.5px solid @line-2;
+      border-radius: @radius-sm;
+      display: flex; align-items: center; justify-content: center;
+      font-family: @ff-mono;
+      font-size: 10px;
+      font-weight: 700;
+      color: @ink-3;
+      background: @paper;
+    }
+    .todo-body { flex: 1; min-width: 0; }
+    .todo-text { color: @ink; line-height: 1.45; font-weight: 500; word-break: break-word; }
+    .todo-meta {
+      font-family: @ff-mono;
+      font-size: 10px;
+      color: @ink-4;
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+    /* 已完成 */
+    &.completed {
+      .todo-num { background: @olive; border-color: @olive; color: white; }
+      .todo-text { color: @ink-4; text-decoration: line-through; }
+    }
+    /* 执行中：暖橙高亮 + 整行橙底 */
+    &.in-progress {
+      background: @orange-bg;
+      border-bottom-color: @orange;
+      margin: 0 -10px;
+      padding: 10px 12px 10px 10px;
+      .todo-num {
+        background: @orange;
+        border-color: @orange-2;
+        color: white;
+        box-shadow: @shadow-inset;
+      }
+      .todo-text { color: @ink; font-weight: 600; }
+      .todo-meta { color: @orange-2; }
+    }
+  }
+}
+
+/* 收起态：右上小铭牌（absolute，与展开面板同参照系；拖过位置后同样
+   由 inline left/top 覆盖默认右上角） */
+.todo-fab {
+  position: absolute;
+  top: 184px;
+  right: 16px;
+  z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px;
+  width: 66px;
+  padding: 6px 0;
+  background: @ink;
+  color: @paper;
+  border: 1.5px solid @ink;
+  border-radius: @radius;
+  box-shadow: 3px 3px 0 @orange;
+  font-family: @ff-mono;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  &:hover { background: @ink-2; }
+  .todo-fab-num {
+    color: @orange;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ---------- 7) 过程提醒横幅（InterruptBanner）：芥末黄 + 黑边 + 硬阴影 ---------- */
+.interrupt-banner {
+  align-self: stretch;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: @mustard;
+  color: @ink;
+  border: 2px solid @ink;
+  border-radius: @radius;
+  box-shadow: @shadow-big;
+  font-size: 12.5px;
+  max-width: 82%;
+  margin: 0;
+  animation: panel-slide-in 0.3s ease-out;
+
+  .interrupt-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    background: @ink;
+    color: @paper;
+    font-family: @ff-mono;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: @radius-sm;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .interrupt-text {
+    color: @ink;
+    line-height: 1.5;
+    em { font-family: @ff-serif; font-style: italic; font-weight: 600; }
+    strong { color: @ink; font-weight: 700; }
+  }
+  /* 返工：rust 锈红 + paper 黑字 */
+  &.revising {
+    background: @rust;
+    color: @paper;
+    .interrupt-badge { background: @paper; color: @ink; }
+    .interrupt-text { color: @paper; }
+  }
+  /* 委派：保留芥末黄（默认） */
+  &.delegate {
+    background: @mustard;
+  }
+}
+
+/* ---------- 8) 输入栏（InputBar）：INPUT 铭牌 + 暖橙 send ---------- */
+.input-bar {
+  position: relative;
+  background: @paper;
+  border-top: 2px solid @ink;
+  padding: 14px 28px 18px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-right: 0;  /* todo 面板可拖拽，输入区全宽 */
+
+  .input-field {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .input-label {
+    background: @ink;
+    color: @paper;
+    padding: 0 12px;
+    display: flex; align-items: center;
+    font-family: @ff-mono;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: @radius-sm 0 0 @radius-sm;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  textarea {
+    flex: 1;
+    resize: none;
+    min-height: 44px;
+    max-height: 120px;
+    padding: 10px 12px;
+    border: 2px solid @ink;
+    border-left: none;
+    border-radius: 0 @radius @radius 0;
+    font-family: @ff-sans;
+    font-size: 14px;
+    line-height: 1.5;
+    background: @paper;
+    color: @ink;
+    outline: none;
+    transition: box-shadow 0.2s;
+    &::placeholder { color: @ink-4; font-family: @ff-serif; font-style: italic; }
+    &:focus {
+      box-shadow: 4px 4px 0 @orange;
+      border-color: @orange;
+    }
+  }
+
+  button.send-btn {
+    height: 44px;
+    padding: 0 24px;
+    background: @orange;
+    color: white;
+    border: 2px solid @ink;
+    border-radius: @radius;
+    font-family: @ff-sans;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    box-shadow: @shadow-btn;
+    transition: transform 0.1s, box-shadow 0.1s;
+    &:hover:not(:disabled) {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 @ink;
+    }
+    &:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 @ink;
+    }
+    &:disabled {
+      background: @ink-4;
+      color: @paper-2;
+      box-shadow: 2px 2px 0 @ink-3;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* 提示词面板：黑边 + 硬阴影 + 暖橙 hover */
+.prompt-suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 1000;
+  background: @paper;
+  border: 2px solid @ink;
+  border-radius: @radius;
+  box-shadow: 6px 6px 0 @ink;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: 12px 0 6px;
+  animation: prompt-up 0.22s ease-out;
+
+  .prompt-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px 8px;
+    border-bottom: 1px solid @line;
+    .prompt-title {
+      display: flex; align-items: center; gap: 8px;
+      font-family: @ff-serif;
+      font-style: italic;
+      font-weight: 600;
+      font-size: 14px;
+      color: @ink;
+      .prompt-badge {
+        background: @ink;
+        color: @paper;
+        padding: 1px 8px;
+        border-radius: @radius-sm;
+        font-family: @ff-mono;
+        font-size: 10px;
+        font-style: normal;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+    }
+    .prompt-hint {
+      font-family: @ff-mono;
+      font-size: 10px;
+      color: @ink-4;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  .prompt-group {
+    padding: 4px 0;
+  }
+  .prompt-group-title {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 18px 4px;
+    font-family: @ff-mono;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: @ink-3;
+    .prompt-num { color: @orange; font-weight: 700; }
+  }
+  .prompt-item {
+    display: block;
+    width: calc(100% - 36px);
+    margin: 1px 18px;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-family: @ff-sans;
+    font-size: 13px;
+    color: @ink-2;
+    border-radius: @radius-sm;
+    cursor: pointer;
+    line-height: 1.5;
+    transition: background 0.15s, color 0.15s;
+    &:hover {
+      background: @orange-bg;
+      color: @orange-2;
+    }
+  }
+}
+
+/* ---------- 9) 动画 keyframes ---------- */
+@keyframes gear-spin { to { transform: rotate(360deg); } }
+@keyframes belt { to { background-position: 24px 0; } }
+@keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+@keyframes panel-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes prompt-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* 兼容旧 class 名的动画引用 */
+.phase-pulse { animation: blink 1.6s ease-in-out infinite; }
+.interrupt-spin,
+.todo-spin { animation: gear-spin 1s linear infinite; }

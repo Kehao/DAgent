@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="dR6EU6bptNmTHBI28RNlgh">
+<head data-page-node-id="HF7YHBdOjF20jcdb2uCUQ7">
+<meta charset="UTF-8" data-page-node-id="LauB3zMEsTFj1pkbHYGIPT" />
+<title>DAgent · 方向 C · 工业装配线派</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" data-page-node-id="T96Os4tp0AjRAs6wvHnL05" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-page-node-id="ZqTdzmuIAppcrA3ohms6Xt" />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" data-page-node-id="Mk3EgNpFgoT00e9xxa13Fm" />
+<style>
+  :root {
+    --paper: #f3ede0;        /* 奶白 */
+    --paper-2: #ebe3d2;
+    --paper-3: #e2d8c2;
+    --ink: #1a1a1a;          /* 炭黑 */
+    --ink-2: #3a3a3a;
+    --ink-3: #5a5a5a;
+    --ink-4: #8a8a8a;
+    --line: #c4b89c;         /* 牛皮纸边线 */
+    --line-2: #a89977;
+    --orange: #e8772e;       /* 暖橙 accent */
+    --orange-2: #c45a1a;
+    --orange-bg: #fbe7d2;
+    --rust: #a83a1a;         /* 锈红 */
+    --olive: #5a6b3b;        /* 橄榄绿（已完成色） */
+    --olive-bg: #e8e7c8;
+    --mustard: #c4a14a;
+    --steel: #3d4f5a;        /* 钢蓝灰 */
+    --steel-bg: #d6dce0;
+    --radius: 4px;
+    --radius-sm: 2px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, "PingFang SC", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.55;
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(0,0,0,0.02) 23px, rgba(0,0,0,0.02) 24px);
+  }
+  .serif { font-family: 'Newsreader', Georgia, serif; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* ══════ Top brand bar (工业风) ══════ */
+  .topbar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 28px;
+    border-bottom: 3px solid var(--orange);
+    display: flex; align-items: center; gap: 24px;
+  }
+  .topbar .logo {
+    width: 44px; height: 44px;
+    border: 2px solid var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Newsreader', serif; font-style: italic; font-weight: 700;
+    font-size: 24px; color: var(--orange);
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+  }
+  .topbar .titles { line-height: 1.15; }
+  .topbar .titles .t1 {
+    font-family: 'Newsreader', serif; font-weight: 600; font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+  .topbar .titles .t1 em { font-style: italic; color: var(--orange); }
+  .topbar .titles .t2 {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-4);
+    margin-top: 4px;
+  }
+  .topbar .meta { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 12px; }
+  .topbar .meta .item { display: flex; align-items: center; gap: 6px; color: var(--paper-2); }
+  .topbar .meta .item .v { color: var(--orange); font-weight: 600; }
+  .topbar .meta .item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--olive); }
+
+  /* 装配线 banner — 工业流水线视觉 */
+  .line {
+    background: var(--paper-2);
+    border-bottom: 2px solid var(--line);
+    padding: 16px 28px;
+    position: relative;
+  }
+  .line::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 4px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 12px);
+    transform: translateY(-2px);
+    opacity: 0.18;
+  }
+  .line-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 0;
+    position: relative;
+  }
+  .station {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    position: relative; z-index: 1;
+  }
+  .station .ico {
+    width: 52px; height: 52px; border-radius: 4px;
+    background: var(--paper);
+    border: 2px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+    transition: all 0.3s;
+  }
+  .station .ico svg { width: 24px; height: 24px; }
+  .station.done .ico { background: var(--olive-bg); border-color: var(--olive); color: var(--olive); }
+  .station.run .ico {
+    background: var(--orange); border-color: var(--orange-2);
+    color: white;
+    box-shadow: 0 4px 0 var(--orange-2);
+    transform: translateY(-2px);
+  }
+  .station.run .ico svg { animation: gear-spin 2s linear infinite; }
+  .station .lbl {
+    font-family: 'Newsreader', serif; font-weight: 600; font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .station.done .lbl { color: var(--olive); }
+  .station.run .lbl { color: var(--orange-2); }
+  .station .idx {
+    position: absolute; top: -8px; right: -8px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+  }
+  .station.done .idx { background: var(--olive); }
+  .station.run .idx { background: var(--orange); }
+
+  .conveyor {
+    flex: 1; height: 4px; background: var(--ink); margin: 0 -6px;
+    position: relative; z-index: 0;
+    align-self: flex-start; margin-top: 24px;
+  }
+  .conveyor.done { background: var(--olive); }
+  .conveyor.run {
+    background: var(--ink);
+    background-image: repeating-linear-gradient(90deg, var(--orange) 0 12px, var(--ink) 12px 24px);
+    animation: belt 1.4s linear infinite;
+  }
+  .conveyor.future { background: var(--line); }
+
+  .line-foot {
+    margin-top: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    font-size: 12px; color: var(--ink-3);
+  }
+  .line-foot .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 10px; border: 1px solid var(--ink);
+    background: var(--paper); border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink); font-weight: 500;
+  }
+  .line-foot .badge.run { border-color: var(--orange); color: var(--orange-2); background: var(--orange-bg); }
+
+  /* ══════ Workspace (左 todo + 右 chat) ══════ */
+  .work {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 200px);
+  }
+
+  /* Todo 左侧工业清单 */
+  .todo {
+    background: var(--paper-2);
+    border-right: 2px solid var(--line);
+    padding: 18px 16px;
+    overflow-y: auto;
+  }
+  .todo h3 {
+    font-family: 'Newsreader', serif; font-style: italic; font-weight: 600;
+    font-size: 13px; color: var(--ink-3);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding-bottom: 8px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .todo h3 .num {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--ink); color: var(--paper);
+    padding: 1px 8px; border-radius: 2px;
+  }
+  .todo .pbar {
+    margin: 14px 0;
+    height: 6px; background: var(--paper-3); border: 1px solid var(--line); border-radius: 2px;
+    position: relative; overflow: hidden;
+  }
+  .todo .pbar > span {
+    display: block; height: 100%;
+    background: repeating-linear-gradient(45deg, var(--olive) 0 6px, #4a5b2b 6px 12px);
+    width: 50%;
+  }
+  .todo .item {
+    display: flex; gap: 10px;
+    padding: 12px 10px;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+    position: relative;
+  }
+  .todo .item:last-child { border-bottom: none; }
+  .todo .item .num {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    border: 1.5px solid var(--line-2);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+    color: var(--ink-3);
+    background: var(--paper);
+  }
+  .todo .item.done .num { background: var(--olive); border-color: var(--olive); color: white; }
+  .todo .item.run .num {
+    background: var(--orange); border-color: var(--orange-2);
+    color: white;
+    box-shadow: inset 0 -2px 0 var(--orange-2);
+  }
+  .todo .item .body { flex: 1; }
+  .todo .item .t { color: var(--ink); line-height: 1.4; font-weight: 500; }
+  .todo .item.done .t { color: var(--ink-4); text-decoration: line-through; }
+  .todo .item .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--ink-4);
+    margin-top: 4px; letter-spacing: 0.04em;
+  }
+  .todo .item.run { background: var(--orange-bg); margin: 0 -10px; padding: 12px 10px; border-bottom: 1px solid var(--orange); }
+  .todo .item.run .meta { color: var(--orange-2); }
+
+  /* Chat */
+  .chat {
+    padding: 24px 28px;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .chat .stamp {
+    font-size: 11px; color: var(--ink-4);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    text-align: center; padding: 8px 0;
+    border-top: 1px dashed var(--line);
+    border-bottom: 1px dashed var(--line);
+  }
+  .msg { max-width: 82%; }
+  .msg .author {
+    font-size: 11px; color: var(--ink-3);
+    margin-bottom: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .msg .bubble {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    line-height: 1.6;
+    font-size: 14px;
+    border: 1px solid var(--line);
+  }
+  .msg.user { align-self: flex-end; }
+  .msg.user .bubble {
+    background: var(--ink); color: var(--paper);
+    border-color: var(--ink);
+  }
+  .msg.user .bubble em { font-style: italic; color: var(--orange); }
+  .msg.assistant .bubble { background: var(--paper); color: var(--ink); }
+  .msg.assistant .bubble strong { color: var(--orange-2); font-weight: 700; }
+  .msg.assistant .bubble em { font-family: 'Newsreader', serif; font-style: italic; }
+  .msg.assistant .bubble .tnum { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--rust); }
+  .msg.assistant .bubble ul { margin: 6px 0 0 18px; }
+  .msg.assistant .bubble li { margin: 3px 0; }
+
+  /* 工具卡 — 工业铭牌 */
+  .tool {
+    align-self: flex-start;
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 14px 8px 8px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    font-size: 12px;
+    box-shadow: 3px 3px 0 var(--ink);
+    max-width: 78%;
+  }
+  .tool .ico {
+    width: 28px; height: 28px;
+    background: var(--ink); color: var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+  }
+  .tool.done .ico { background: var(--olive); color: white; }
+  .tool.run .ico { background: var(--orange); color: white; }
+  .tool .name { font-family: 'JetBrains Mono', monospace; color: var(--ink); font-weight: 600; }
+  .tool .state { color: var(--ink-3); }
+  .tool .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 1px 6px; background: var(--paper-2); color: var(--ink-3);
+    border: 1px solid var(--line); border-radius: 2px;
+  }
+
+  /* Interrupt 横幅 — 工业告示 */
+  .interrupt {
+    align-self: stretch;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 18px;
+    background: var(--mustard);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .interrupt .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; background: var(--ink); color: var(--paper);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    font-weight: 600; border-radius: 2px; letter-spacing: 0.05em;
+  }
+  .interrupt .text { flex: 1; }
+  .interrupt .text em { font-family: 'Newsreader', serif; font-style: italic; font-weight: 600; }
+  .interrupt.revise { background: var(--rust); color: var(--paper); }
+  .interrupt.revise .badge { background: var(--paper); color: var(--ink); }
+
+  /* typing 指示 — 跳动的工业指示灯 */
+  .typing { display: inline-flex; gap: 4px; align-items: center; margin-left: 4px; }
+  .typing span { width: 5px; height: 5px; background: var(--orange); border-radius: 50%; animation: blink 1.2s ease-in-out infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  /* ══════ Composer (底栏) ══════ */
+  .composer {
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+    padding: 14px 28px 18px;
+    position: relative;
+  }
+  .composer-inner {
+    max-width: 1100px; margin: 0 auto;
+    position: relative;
+  }
+  .composer .box {
+    display: flex; align-items: flex-end; gap: 12px;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    padding: 8px;
+    background: var(--paper);
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .composer .box:focus-within {
+    box-shadow: 4px 4px 0 var(--orange);
+    border-color: var(--orange);
+  }
+  .composer .label {
+    background: var(--ink); color: var(--paper);
+    padding: 0 12px; align-self: stretch;
+    display: flex; align-items: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+  .composer textarea {
+    flex: 1; border: none; outline: none; resize: none;
+    background: transparent; color: var(--ink);
+    font: inherit; font-size: 14px; line-height: 1.5;
+    padding: 10px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .composer .send {
+    height: 44px; padding: 0 24px;
+    background: var(--orange); color: white; border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.05em;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .composer .send:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  .composer .send:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .composer .send:disabled { background: var(--ink-4); color: var(--paper-2); box-shadow: 2px 2px 0 var(--ink-3); }
+
+  /* 提示词面板 */
+  .suggest {
+    position: absolute;
+    left: 0; right: 0; bottom: calc(100% + 8px);
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: 6px 6px 0 var(--ink);
+    padding: 12px 0 6px;
+    max-height: 46vh; overflow-y: auto;
+  }
+  .suggest .sh {
+    padding: 0 18px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+  }
+  .suggest .sh .t {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Newsreader', serif; font-style: italic; font-weight: 600;
+    font-size: 14px;
+  }
+  .suggest .sh .t .badge {
+    background: var(--ink); color: var(--paper);
+    padding: 1px 8px; border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-style: normal;
+  }
+  .suggest .sh .h { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-4); letter-spacing: 0.05em; }
+  .suggest .group { padding: 8px 0; }
+  .suggest .gt {
+    padding: 4px 18px;
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .suggest .gt .num { color: var(--orange); font-weight: 700; }
+  .suggest .item {
+    display: block; width: calc(100% - 36px);
+    margin: 1px 18px;
+    padding: 8px 12px;
+    background: transparent; border: none; text-align: left;
+    font: inherit; font-size: 13px; color: var(--ink);
+    border-radius: var(--radius-sm);
+    cursor: pointer; line-height: 1.5;
+  }
+  .suggest .item:hover { background: var(--orange-bg); color: var(--orange-2); }
+
+  /* ══════ Animations ══════ */
+  @keyframes gear-spin { to { transform: rotate(360deg); } }
+  @keyframes belt { to { background-position: 24px 0; } }
+  @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+</style>
+</head>
+<body data-page-node-id="OtuE7IAs0kKFI3tDURW6gj">
+
+<!-- ══════ Top brand bar ══════ -->
+<header class="topbar" data-page-node-id="sZEWeJbFgHacZzVg9TGcZJ">
+  <div class="logo" data-page-node-id="tKVJF1vVGspSFijYjrT3Ry">D</div>
+  <div class="titles" data-page-node-id="opdDZggzRKURHdbSn59c0S">
+    <div class="t1" data-page-node-id="EFBMp9KBh3ATndZPjfEwYS">DAgent <em data-page-node-id="tDnuSbqi5ighCt1srno1S7">·</em> 企业级多智能体框架</div>
+    <div class="t2" data-page-node-id="eYrYdczkpDZW2MrlZRo0db">摩托车零部件采购助手 · Multi-Agent Procurement Console</div>
+  </div>
+  <div class="meta" data-page-node-id="EJmDTwz4mUw07Buqa8PSaE">
+    <div class="item" data-page-node-id="NyifvRAlLm0ZHjd2xjil8z"><span class="dot" data-page-node-id="jcBTme1ievTu2QqNDAf9dx"></span>API <span class="v" data-page-node-id="FGcLKoMCNgLYjXRd920iX3">:8100</span> · <span class="v" data-page-node-id="mHv6j390guPv3fVG9J3ATX">ONLINE</span></div>
+    <div class="item" data-page-node-id="CaH7ewvEuaQ9VG8oOYYLbk">MCP <span class="v" data-page-node-id="WgrzZXRTS91lfGBA2qdMA4">:9100</span></div>
+    <div class="item" data-page-node-id="XjeGzMgFkZYcSxfPYg39xD">LLM <span class="v" data-page-node-id="GD3BqJ2oh8ZSK3YDBFKD1A">qwen-plus</span></div>
+    <div class="item" data-page-node-id="rM1IKTWB901ANktAP0ROB0">SSE <span class="v" data-page-node-id="S6hxkajUeeQrElK70kF6aG">9</span> events</div>
+  </div>
+</header>
+
+<!-- ══════ 装配线 (Harness as assembly line) ══════ -->
+<section class="line" data-page-node-id="i8yNdhLEazGEYIxiJZ41se">
+  <div class="line-inner" data-page-node-id="KJICrOr8ChpSQ45Jri80xx">
+    <!-- 5 站 + 4 传送带 -->
+    <div class="station done" data-page-node-id="bEcQzam6oea2TDOOxvdN83">
+      <div class="ico" data-page-node-id="Z0emDSLc6g6ZhsGcXFW2Id"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-page-node-id="kqBHtCo9f1FQtxbD1mlkNx"><circle cx="12" cy="12" r="9" data-page-node-id="nqUNkiXzGuhtnqWPpo9Ru6"/><path d="M12 7v5l3 3" data-page-node-id="Iukz0ibBClcA52FfYW8ZfD"/></svg></div>
+      <div class="lbl" data-page-node-id="2pW833Z64LGbHYs2EDA9FZ">Think</div>
+      <div class="idx" data-page-node-id="piyXFQp2NXnhAF4GMZELqs">01</div>
+    </div>
+    <div class="conveyor done" data-page-node-id="4cbhjPvdPYq4R1Ni2FsXIG"></div>
+    <div class="station done" data-page-node-id="Bg2yaBQO1PvOBYbUNGkC7P">
+      <div class="ico" data-page-node-id="1RFJbbOEFPounmO0xHFZCm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-page-node-id="TgwEpQqXEbmvOwqsElQbKq"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" data-page-node-id="n5HXStpQmLZHOY3lXhv7DV"/></svg></div>
+      <div class="lbl" data-page-node-id="w1OnvzJsau3dKZMxhUj9RB">Plan</div>
+      <div class="idx" data-page-node-id="NWNM3DPBUuOhDWdEu3E6LW">02</div>
+    </div>
+    <div class="conveyor done" data-page-node-id="g23z0xLFmIe350HxyEZO70"></div>
+    <div class="station run" data-page-node-id="qvgDBKXAFaLMgl5YkQ52nh">
+      <div class="ico" data-page-node-id="DF3F6FYR8d0H9qszg5Ryx6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-page-node-id="8OncjoHjwJ4RBPoIFgjlMD"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" data-page-node-id="HWjm3ZBSNftzweJS9p6u79"/></svg></div>
+      <div class="lbl" data-page-node-id="g4erCzkOAlaDrOAFsbDYyx">Execute</div>
+      <div class="idx" data-page-node-id="xZKdti62pNnxbuQnNWwBLT">03</div>
+    </div>
+    <div class="conveyor run" data-page-node-id="CRdRcEot3GTzUh62u7jkB6"></div>
+    <div class="station" data-page-node-id="UJLT5ML9P1ilAGvJcJ74Pt">
+      <div class="ico" data-page-node-id="FBjajCJxArxKCkhB30WzxP"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-page-node-id="18ua8UXixE6MaNInvrCLjd"><circle cx="11" cy="11" r="7" data-page-node-id="N6gFrRbv9whTDX4t1t7Ver"/><path d="M21 21l-4.35-4.35" data-page-node-id="Rmo8XYkiMfMjCcLSYUxmkn"/></svg></div>
+      <div class="lbl" data-page-node-id="1HQdjHHYE3tsNlm4Wrxm6M">Review</div>
+      <div class="idx" data-page-node-id="ADTUTlj0Wwn7o5kAuz7K23">04</div>
+    </div>
+    <div class="conveyor future" data-page-node-id="aO1OaoP1n2Rz8F04mn7dwA"></div>
+    <div class="station" data-page-node-id="qR1mgXFH9844Nbu5ERFnA0">
+      <div class="ico" data-page-node-id="GQ9BHfPeWsUg4eYRQ8UPkE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-page-node-id="463dlXUD5CAzvcZv9k89UR"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" data-page-node-id="F6JHFt8lVJXyTeHgmtuGl7"/></svg></div>
+      <div class="lbl" data-page-node-id="8a9BDfqHzx90IBiMFyyin4">Done</div>
+      <div class="idx" data-page-node-id="7ZA7gDt7eLnbJwB4NiL2fu">05</div>
+    </div>
+  </div>
+  <div class="line-foot" data-page-node-id="Ndi7tN6BsUl7CO719IpGQw">
+    <span data-page-node-id="3ySnc939DcALyGNHKXEaIi">正在调用工具执行任务</span>
+    <span class="typing" data-page-node-id="uDSfzNMZ54gTyoYF3aLXpc"><span data-page-node-id="kNWjvOF6ZbrCHzqWAppwGU"></span><span data-page-node-id="FRsAVR0m2hWoPMuNJb2CFm"></span><span data-page-node-id="VRvOegjQwpiVZAj7mYEX9D"></span></span>
+    <span class="badge run" data-page-node-id="EfGs16MYRidBhXSx1ngt75">ITER 01 · EXECUTING</span>
+  </div>
+</section>
+
+<!-- ══════ Workspace ══════ -->
+<div class="work" data-page-node-id="HjSuhIp9Qf8icVWq3vKkes">
+
+  <!-- Left todo -->
+  <aside class="todo" data-page-node-id="DqHSh3VU8dNt2up8UY1Gzj">
+    <h3 data-page-node-id="BAsBiQkUrx4j9QYBqKtl4L">任务规划 <span class="num" data-page-node-id="9i88fhS5T2C9ixYwk96aKJ">2/4</span></h3>
+    <div class="pbar" data-page-node-id="Mx2EVKo4BgBaSR6gULS2kA"><span data-page-node-id="85I81fRwhHKtmRZzkaXo5o"></span></div>
+    <div class="item done" data-page-node-id="v5UJ8SFYa2RlTqL0B2tixP">
+      <div class="num" data-page-node-id="cEtHdgkwPNwMPFin40G3Zq">1</div>
+      <div class="body" data-page-node-id="8akIW0MpmDq1mO7AzbIDOl">
+        <div class="t" data-page-node-id="d1hdInEfcLDkSQCAn0BP7M">理解问题：三家高强度链条比价</div>
+        <div class="meta" data-page-node-id="57ZPZ3DconCqVZgX7YGowJ">THINK · 0.3s</div>
+      </div>
+    </div>
+    <div class="item done" data-page-node-id="64j73L8G3aUaESdCHuKbpi">
+      <div class="num" data-page-node-id="SatZFqKH8aEFp8TdDMVznm">2</div>
+      <div class="body" data-page-node-id="1GeRRmOX75BF2qfkTGBTFm">
+        <div class="t" data-page-node-id="rCSg2lMHE5aTydJGwEaGdl">supplier_search 拉取 S001 / S008 / S002 档案</div>
+        <div class="meta" data-page-node-id="9rA3SZT7DnDnhKvauPXux0">TOOL · 0.6s · 3 results</div>
+      </div>
+    </div>
+    <div class="item run" data-page-node-id="gGQ3cmaK2cNL2fTbYqvgwh">
+      <div class="num" data-page-node-id="psM6nhb4zRm2ccowCNSObB">3</div>
+      <div class="body" data-page-node-id="Vh8B14lUBP7WegxoKa4QRY">
+        <div class="t" data-page-node-id="WFNbVi5PJTtGbFSxKFGHOM">part_search 对比 P001 在三家库存与单价</div>
+        <div class="meta" data-page-node-id="n1gPdY8MrkKCEFg7sAQUHl">TOOL · RUNNING · MCP:9100</div>
+      </div>
+    </div>
+    <div class="item" data-page-node-id="E1Y7wEAXbsc5RvH5jkdsLG">
+      <div class="num" data-page-node-id="KsPbKeFi6TvV1qx7UCWYAg">4</div>
+      <div class="body" data-page-node-id="vRWIURgitBYC8SX8qybHvW">
+        <div class="t" data-page-node-id="bbgIhZj1f0Tusmt0M2uM4W">Rubric 评审 · 输出对比表与推荐</div>
+        <div class="meta" data-page-node-id="CBbgGc1BZnDyPX03OtonwG">REVIEW · PENDING · ITER 1</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right chat -->
+  <section class="chat" data-page-node-id="AqoxjglTBAsEzZppgPuMqE">
+    <div class="stamp" data-page-node-id="SBSFP6KCBCFyNnW52uufBD">SESSION · 2026-09-09 · 11:42:08</div>
+
+    <div class="msg user" data-page-node-id="69XBzL6PGub9hzekKBWJcA">
+      <div class="author" data-page-node-id="iAbMYKCRolbsNzr76lykA9">YOU · 11:42:08</div>
+      <div class="bubble" data-page-node-id="AfuSKcenYOXjLUiCGUmyvs">高强度链条有三家货源 <em data-page-node-id="mSMjBaUFtopzFJflBJvnEN">S001(65元)</em>、<em data-page-node-id="DRYqA6wVpH1GcxRRLGdUdR">S008(58元)</em>、<em data-page-node-id="B5DROyh4CeQdAjVKMm40be">S002(70元)</em>，对比价格、质量合格率与交付能力，推荐最合适的一家。</div>
+    </div>
+
+    <div class="interrupt" data-page-node-id="AY62Ev8SDfkU666o9Qg982">
+      <div class="badge" data-page-node-id="LkxyvdOEovEEARv31R0F6p">SUB-AGENT</div>
+      <div class="text" data-page-node-id="cBVRY0Q2rA52el4pbViVqi">主 Agent 已将分析任务委派给 <em data-page-node-id="c0QDOMsC0LKTWcjgOlEjoK">supplier-analyst</em> 子 Agent，正在独立调工具…</div>
+    </div>
+
+    <div class="tool done" data-page-node-id="PJaKU5Mmk3x8OFvBJh0L5Y">
+      <div class="ico" data-page-node-id="nouOusiGCFFC5rdNcH3Wn6">✓</div>
+      <div data-page-node-id="ddgO1URWaqVtki2T4b8tFp">
+        <div class="name" data-page-node-id="MmCKBpli5SPB1gnvnUhxYj">supplier_search</div>
+        <div class="state" data-page-node-id="6TefUmBxea3ZOOXQOx3HWq">3 家候选已返回</div>
+      </div>
+      <span class="tag" data-page-node-id="wBt8TVASxYWmRBa9ssjfE6">0.6s</span>
+    </div>
+    <div class="tool run" data-page-node-id="DAYLxvpELZ7MuRBQatkNiE">
+      <div class="ico" data-page-node-id="Xk0ArqsuzDKzBrwssZCkZQ">⟳</div>
+      <div data-page-node-id="6c26T1ZYx3DRCsNMt1JIiW">
+        <div class="name" data-page-node-id="dCR5enqSbMlcsbln0HcOXj">part_search</div>
+        <div class="state" data-page-node-id="DtKYdmafox6KSvV8GL8YJ7">查询 P001 在三家库存与单价…</div>
+      </div>
+      <span class="tag" data-page-node-id="ioAjdfIzcGXyEWkNMcOfUx">RUN</span>
+    </div>
+
+    <div class="msg assistant" data-page-node-id="QfCeu2k4GRo6XG8K60NYXt">
+      <div class="author" data-page-node-id="llDRvLHmYXvUG7AXtAYQWo">SUB-AGENT · SUPPLIER-ANALYST</div>
+      <div class="bubble" data-page-node-id="lzL0bsqUERNOVWpvUNhapm">
+        <strong data-page-node-id="hQKxemEBqB1L481WBtQT6D">初步结论</strong>：综合 <em data-page-node-id="TRX8mDPyCVLAeCZddUFVEC">价格</em>、<em data-page-node-id="SD6oKCdypgAOHsCadUeDGn">质量合格率</em>、<em data-page-node-id="w3jqFfEzDsSpVCnwPa92Wp">准时交付率</em> 三维度——
+        <ul data-page-node-id="H1PLqQEvkdndWeMzK0SZFR">
+          <li data-page-node-id="cf7yyVv7NlwyQkh316HDck"><span class="tnum" data-page-node-id="9AsskwSG9nfzhQkAkPdV0Y">S001</span> · 96.5% 交付稳定，合作 4 年</li>
+          <li data-page-node-id="XEhRJ6mRfTwY2wqdv7yXHl"><span class="tnum" data-page-node-id="O6r45TvBxe1kTLPCAsppoa">S008</span> · 最低价但合作仅 1 年</li>
+          <li data-page-node-id="EX4fHGG299PnDpLk8RBZOu"><span class="tnum" data-page-node-id="vlo7UYOLfVmxNZFD34gcrb">S002</span> · 评级 A + 合作 6 年（最稳）</li>
+        </ul>
+        关键件推荐 <strong data-page-node-id="zsnVPIBPE66pEIQazN2X7T">S002</strong>，价格虽高 5 元但风险最低…
+        <span class="typing" data-page-node-id="AoevaAOapjGLZR95UphXI7"><span data-page-node-id="0M5pMAsk7SzQOR1sCwx4VW"></span><span data-page-node-id="clHC2hCm6MgaQkPN3RpnRF"></span><span data-page-node-id="qijFIGkly3CmSyq3E7lBYb"></span></span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════ Composer ══════ -->
+<footer class="composer" data-page-node-id="aJOzSXGGJzAen6k3NP5HJw">
+  <div class="composer-inner" data-page-node-id="HQrKJrjFOS0KlHREJEtIAE">
+    <div class="suggest" data-page-node-id="kMdI5SEu2kTcoMq2cXd3Fj">
+      <div class="sh" data-page-node-id="B7OH3io5c9gRBwtPmsxRLy">
+        <div class="t" data-page-node-id="aJAJEEdjVCiTheUgGrZDCw">试试这样问 <span class="badge" data-page-node-id="94a9PtqkfPRO0cXWesRquX">15 PROMPTS</span></div>
+        <div class="h" data-page-node-id="EZG7NhtVLBIrIsftCOXHlD">CLICK TO FILL · ENTER TO SEND</div>
+      </div>
+      <div class="group" data-page-node-id="p0CX9ehQa9oBLdVjNAtgQp">
+        <div class="gt" data-page-node-id="4InzMtbrJuGCVvNIwk9p5a"><span class="num" data-page-node-id="to3HdvtZRQoHX3Zt1s1azC">01</span>委派分析 · supplier-analyst</div>
+        <button class="item" data-page-node-id="Xxtxk4jVoS6SUiCJRCExPE">对比后视镜供应商 S003 与 S005：价格、供货能力、合作风险三角度</button>
+        <button class="item" data-page-node-id="4ps1rDT1OS540DPPXiIAKH">高强度链条 S001 / S008 / S002 三家比价，推荐最合适</button>
+        <button class="item" data-page-node-id="EOJJrDQ5QBGUl0pAukbsQz">对全部 8 家供应商做信用评级分析：评级分 / 合格率 / 准时交付率排序</button>
+      </div>
+      <div class="group" data-page-node-id="hWmb9iZqr962thMAA8KetE">
+        <div class="gt" data-page-node-id="OiI0Ys7gsD8IP0dlO23xrZ"><span class="num" data-page-node-id="NGTA0IkKrrYnegOkhqLAhw">02</span>日常查询</div>
+        <button class="item" data-page-node-id="l5hTtzCC0GrbTFRnxBrkm2">钱江 S002 都供应哪些零件？各自的单价与库存</button>
+      </div>
+      <div class="group" data-page-node-id="AamyrJDjoasQwMHsz42b2r">
+        <div class="gt" data-page-node-id="9vhUCBOqKPNgUiGPsQvLkr"><span class="num" data-page-node-id="T8a9FRUVjALvqWVTtsgPvC">03</span>库存与风险排查</div>
+        <button class="item" data-page-node-id="WseN97HZsEz0zdPZC4aCIB">盘式制动卡钳库存为 0，查它的供应商是否还在合作？会不会断供</button>
+      </div>
+    </div>
+    <div class="box" data-page-node-id="sl3QPEamHkIzR0pvIOWj7Y">
+      <div class="label" data-page-node-id="l4yYOjredbBhOUc9xxMa79">INPUT</div>
+      <textarea rows="2" placeholder="点击输入框查看常用提示词；或直接提问（Enter 发送，Shift+Enter 换行）"></textarea>
+      <button class="send" data-page-node-id="ibhGUMoYc3AnOv1pCC1wGm">SEND ➤</button>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

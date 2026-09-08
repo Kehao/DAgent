@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>DAgent · 方向 A · 精密商务派</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ══════ Design tokens ══════ */
+  :root {
+    --bg: #fafbfc;
+    --surface: #ffffff;
+    --surface-2: #f4f5f7;
+    --ink: #0e1116;
+    --ink-2: #2a2f3a;
+    --ink-3: #5b6573;
+    --ink-4: #8a93a1;
+    --line: #e6e8ec;
+    --line-2: #d7dae0;
+    --steel: #1e3a5f;          /* 钢蓝主色 */
+    --steel-soft: #5a7ba0;
+    --steel-bg: #eef2f7;
+    --accent: #c8924b;          /* 古铜金点缀 */
+    --success: #0a7a3e;
+    --success-bg: #ecf6ef;
+    --warn: #b06b1a;
+    --warn-bg: #fdf3e3;
+    --radius: 8px;
+    --radius-sm: 4px;
+    --shadow-sm: 0 1px 0 rgba(14,17,22,0.04), 0 1px 2px rgba(14,17,22,0.04);
+    --shadow-md: 0 2px 4px rgba(14,17,22,0.04), 0 8px 16px rgba(14,17,22,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, "PingFang SC", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .serif { font-family: 'Newsreader', Georgia, serif; }
+
+  /* ══════ App layout ══════ */
+  .app { min-height: 100vh; display: grid; grid-template-rows: auto auto 1fr auto; }
+
+  /* ══════ Header — 衬线大标题 + 钢蓝分割线 + 极简说明 ══════ */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 22px 40px 18px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand-mark {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--steel);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--steel);
+    font-family: 'Newsreader', serif;
+    font-size: 22px; font-weight: 600;
+    font-style: italic;
+    border-radius: 2px;
+  }
+  .brand-title {
+    font-family: 'Newsreader', serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .brand-title em { font-style: italic; color: var(--steel); }
+  .brand-sub {
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .topbar-meta {
+    display: flex; align-items: center; gap: 20px;
+    font-size: 12px; color: var(--ink-3);
+  }
+  .meta-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+  }
+  .meta-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+  .meta-dot.amber { background: var(--warn); }
+
+  /* 架构明细行：紧凑、行间注释感 */
+  .arch-row {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 40px 14px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .arch-row .label {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    color: var(--ink-2);
+    margin-right: 4px;
+  }
+  .arch-row .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 1px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink-2);
+    background: var(--surface);
+  }
+  .arch-row .chip.steel {
+    border-color: var(--steel-soft);
+    color: var(--steel);
+    background: var(--steel-bg);
+  }
+  .arch-row .chip .pulse {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--steel);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .arch-row .sep { color: var(--ink-4); margin: 0 2px; }
+  .arch-row .arrow { color: var(--ink-4); font-size: 11px; margin: 0 4px; }
+
+  /* ══════ Harness phase strip — 横长细线 + 圆点 + 序号 ══════ */
+  .phase-strip {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 40px;
+  }
+  .phase-strip-inner {
+    max-width: 1240px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: center; gap: 0;
+  }
+  .phase-item {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .phase-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: var(--ink-4);
+    background: var(--surface);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .phase-dot.past { background: var(--success); border-color: var(--success); color: white; }
+  .phase-dot.current { background: var(--steel); border-color: var(--steel); color: white; box-shadow: 0 0 0 3px rgba(30,58,95,0.15); }
+  .phase-dot.future { background: var(--surface); }
+  .phase-label {
+    font-size: 12px; color: var(--ink-3);
+    font-family: 'Newsreader', serif; font-style: italic;
+  }
+  .phase-label.current { color: var(--ink); font-weight: 500; font-style: normal; }
+  .phase-label.past { color: var(--success); }
+  .phase-line {
+    width: 56px; height: 1px; background: var(--line-2);
+    margin: 0 8px;
+    position: relative;
+  }
+  .phase-line.past { background: var(--success); }
+  .phase-line.past::after {
+    content: ''; position: absolute; inset: 0;
+    background: var(--success);
+    animation: line-fill 1.4s linear infinite;
+    transform-origin: left;
+  }
+  .phase-foot {
+    max-width: 1240px; margin: 6px auto 0;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    font-size: 12px; color: var(--ink-3);
+  }
+  .phase-foot .verdict {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 10px; border: 1px solid var(--success); border-radius: 999px;
+    color: var(--success); font-weight: 500;
+  }
+  .phase-foot .verdict.needs { border-color: var(--warn); color: var(--warn); }
+
+  /* ══════ Main grid: chat (left) + todo (right) ══════ */
+  .main {
+    max-width: 1240px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px 40px 0;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+  }
+  .chat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    min-height: 460px;
+    display: flex; flex-direction: column;
+  }
+  .chat-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--ink-3);
+  }
+  .chat-head .title { font-family: 'Newsreader', serif; font-style: italic; font-size: 14px; color: var(--ink-2); }
+  .chat-head .title b { font-style: normal; font-weight: 600; color: var(--ink); }
+
+  .chat-body {
+    flex: 1; padding: 22px 20px; display: flex; flex-direction: column; gap: 16px;
+  }
+  .msg { max-width: 78%; }
+  .msg .author {
+    font-size: 11px; color: var(--ink-4);
+    margin-bottom: 4px;
+    font-family: 'Newsreader', serif; font-style: italic;
+    letter-spacing: 0.02em;
+  }
+  .msg .bubble {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    line-height: 1.65;
+    font-size: 14px;
+  }
+  .msg.user { align-self: flex-end; }
+  .msg.user .bubble { background: var(--steel); color: white; }
+  .msg.user .author { text-align: right; display: block; }
+  .msg.assistant .bubble {
+    background: var(--surface-2);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+  }
+  .msg.assistant .bubble strong { color: var(--ink); font-weight: 600; }
+  .msg.assistant .bubble em { font-family: 'Newsreader', serif; font-style: italic; }
+
+  /* 工具卡：横向紧凑 + 等宽名 */
+  .tool {
+    align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 6px 14px 6px 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 12px;
+    max-width: 78%;
+  }
+  .tool .t-ico {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--success-bg); color: var(--success);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .tool .t-ico.running { background: var(--steel-bg); color: var(--steel); animation: spin 1.4s linear infinite; }
+  .tool .t-name { font-family: 'JetBrains Mono', monospace; color: var(--ink-2); }
+  .tool .t-state { color: var(--ink-4); }
+
+  /* Interrupt 横幅：细线 + 斜体说明（注释风） */
+  .interrupt {
+    align-self: stretch;
+    margin: -4px 0 -4px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: var(--steel-bg);
+    border-left: 2px solid var(--steel);
+    color: var(--steel);
+    font-size: 12px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .interrupt .italic {
+    font-family: 'Newsreader', serif; font-style: italic;
+  }
+  .interrupt.revise { background: var(--warn-bg); border-left-color: var(--warn); color: var(--warn); }
+
+  /* typing 指示：三个小点 */
+  .typing { display: inline-flex; gap: 3px; align-items: center; padding-left: 6px; }
+  .typing span { width: 4px; height: 4px; background: var(--ink-3); border-radius: 50%; animation: blink 1.2s ease-in-out infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  /* ══════ Todo panel — 工业清单嵌入右侧卡 ══════ */
+  .todo {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    align-self: start;
+    position: sticky; top: 24px;
+  }
+  .todo-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .todo-head .h {
+    font-family: 'Newsreader', serif; font-style: italic; font-size: 14px;
+    color: var(--ink-2);
+  }
+  .todo-head .h b { font-style: normal; font-weight: 600; color: var(--ink); }
+  .todo-head .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink-3);
+    padding: 2px 8px; background: var(--surface-2); border-radius: 999px;
+  }
+  .todo-bar { height: 2px; background: var(--line); }
+  .todo-bar > span {
+    display: block; height: 100%; background: var(--steel);
+    width: 50%; transition: width 0.5s ease;
+  }
+  .todo-list { padding: 8px 0; }
+  .todo-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    border-top: 1px solid var(--line);
+  }
+  .todo-item:first-child { border-top: none; }
+  .todo-ico {
+    width: 14px; height: 14px; flex-shrink: 0; margin-top: 4px;
+    border: 1.5px solid var(--line-2); border-radius: 50%;
+    color: transparent;
+  }
+  .todo-item.done .todo-ico { background: var(--success); border-color: var(--success); color: white; }
+  .todo-item.done .t { color: var(--ink-4); text-decoration: line-through; }
+  .todo-item.run .todo-ico {
+    border-color: var(--steel); border-top-color: transparent;
+    animation: spin 1s linear infinite;
+  }
+  .todo-item.run .t { color: var(--ink); font-weight: 500; }
+  .todo-item .t { color: var(--ink-2); line-height: 1.5; }
+  .todo-item .meta {
+    display: block;
+    font-family: 'Newsreader', serif; font-style: italic;
+    font-size: 11px; color: var(--ink-4); margin-top: 2px;
+  }
+
+  /* ══════ Input bar — 居中单行 + 衬线占位 ══════ */
+  .composer {
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    padding: 18px 40px 24px;
+  }
+  .composer-inner {
+    max-width: 1160px; margin: 0 auto;
+    position: relative;
+  }
+  .composer .box {
+    display: flex; align-items: flex-end; gap: 12px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    padding: 8px 8px 8px 18px;
+    background: var(--surface);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .composer .box:focus-within {
+    border-color: var(--steel);
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.12);
+  }
+  .composer textarea {
+    flex: 1;
+    border: none; outline: none; resize: none;
+    font-family: inherit; font-size: 14px; line-height: 1.5;
+    background: transparent;
+    padding: 8px 0;
+    color: var(--ink);
+  }
+  .composer .placeholder {
+    font-family: 'Newsreader', serif; font-style: italic;
+    color: var(--ink-4);
+    font-size: 14px;
+    position: absolute; left: 30px; top: 18px; pointer-events: none;
+  }
+  .composer .send {
+    height: 38px; padding: 0 22px;
+    background: var(--ink); color: white; border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.02em;
+  }
+  .composer .send:disabled { background: var(--ink-4); cursor: not-allowed; }
+
+  /* 提示词面板 — 衬线题注 + 三组 */
+  .suggest {
+    position: absolute;
+    left: 0; right: 0; bottom: calc(100% + 8px);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 14px 0 6px;
+  }
+  .suggest .sh {
+    padding: 0 18px 8px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+  }
+  .suggest .sh .t {
+    font-family: 'Newsreader', serif; font-style: italic; font-size: 13px; color: var(--ink-2);
+  }
+  .suggest .sh .h { font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; text-transform: uppercase; }
+  .suggest .group { padding: 8px 0; }
+  .suggest .gt {
+    padding: 4px 18px;
+    font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .suggest .gt .em { color: var(--steel); font-weight: 600; }
+  .suggest .item {
+    display: block; width: calc(100% - 36px);
+    margin: 1px 18px;
+    padding: 8px 12px;
+    border: none; background: transparent;
+    text-align: left; cursor: pointer;
+    font: inherit; font-size: 13px; color: var(--ink-2);
+    border-radius: var(--radius-sm);
+    line-height: 1.5;
+  }
+  .suggest .item:hover { background: var(--steel-bg); color: var(--steel); }
+
+  /* ══════ Animations ══════ */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+  @keyframes line-fill { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════ Topbar: brand left · meta right ══════ -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">D</div>
+        <div>
+          <div class="brand-title">DAgent <em>·</em> 企业级多智能体框架</div>
+          <div class="brand-sub">Multi-Agent Orchestration Platform · v0.7</div>
+        </div>
+      </div>
+      <div class="topbar-meta">
+        <div class="meta-pill"><span class="meta-dot"></span>API :8100 在线</div>
+        <div class="meta-pill"><span class="meta-dot amber"></span>主 Agent · qwen-plus</div>
+        <div class="meta-pill mono">SSE · 9 events</div>
+      </div>
+    </div>
+    <!-- 架构明细行：钢蓝 chip + 等宽编号 -->
+    <div class="arch-row">
+      <span class="label">链路</span>
+      <span class="chip">React 19 · Vite :5173</span>
+      <span class="chip steel"><span class="pulse"></span>SSE astream</span>
+      <span class="arrow">→</span>
+      <span class="chip">FastAPI :8100</span>
+      <span class="arrow">→</span>
+      <span class="chip steel">DAgent · LangGraph</span>
+      <span class="arrow">→</span>
+      <span class="chip">FastMCP :9100</span>
+      <span class="arrow">→</span>
+      <span class="chip">mock · 8 供应商 / 11 零件</span>
+      <span class="sep">·</span>
+      <span class="label">编排</span>
+      <span class="chip">write_todos</span>
+      <span class="chip steel">Harness 阶段机</span>
+      <span class="chip">Rubric 评审</span>
+      <span class="arrow">→</span>
+      <span class="chip">supplier-analyst 子 Agent</span>
+    </div>
+  </header>
+
+  <!-- ══════ Harness 阶段条 — 细线 + 圆点 + 序号 ══════ -->
+  <div class="phase-strip">
+    <div class="phase-strip-inner">
+      <div class="phase-item">
+        <div class="phase-dot past">1</div>
+        <div class="phase-label past">思考</div>
+      </div>
+      <div class="phase-line past"></div>
+      <div class="phase-item">
+        <div class="phase-dot past">2</div>
+        <div class="phase-label past">规划</div>
+      </div>
+      <div class="phase-line past"></div>
+      <div class="phase-item">
+        <div class="phase-dot current">3</div>
+        <div class="phase-label current">执行</div>
+      </div>
+      <div class="phase-line"></div>
+      <div class="phase-item">
+        <div class="phase-dot future">4</div>
+        <div class="phase-label">审查</div>
+      </div>
+      <div class="phase-line"></div>
+      <div class="phase-item">
+        <div class="phase-dot future">5</div>
+        <div class="phase-label">完成</div>
+      </div>
+    </div>
+    <div class="phase-foot">
+      <span>正在调用工具执行任务<span class="typing"><span></span><span></span><span></span></span></span>
+      <span class="verdict needs">↻ 第 1 轮 · 评审待进行</span>
+    </div>
+  </div>
+
+  <!-- ══════ Main: chat (left) + todo (right) ══════ -->
+  <main class="main">
+    <section class="chat">
+      <div class="chat-head">
+        <div class="title">采购助理 <b>·</b> 摩托车零部件供应商问询会话</div>
+        <div class="mono">#session-2026-09-09-001</div>
+      </div>
+      <div class="chat-body">
+        <div class="msg user">
+          <div class="author">你 · 11:42</div>
+          <div class="bubble">高强度链条有三家货源 S001(65元)、S008(58元)、S002(70元)，对比价格、质量合格率与交付能力，推荐最合适的一家。</div>
+        </div>
+        <div class="interrupt">
+          <span>↗</span>
+          <span class="italic">主 Agent 已将分析任务委派给 supplier-analyst 子 Agent，正在独立调工具…</span>
+        </div>
+        <div class="tool">
+          <div class="t-ico">✓</div>
+          <span class="t-name">supplier_search</span>
+          <span class="t-state">已返回 3 家候选</span>
+        </div>
+        <div class="tool">
+          <div class="t-ico running">⟳</div>
+          <span class="t-name">part_search</span>
+          <span class="t-state">查询 P001 链条在三家库存与单价…</span>
+        </div>
+        <div class="msg assistant">
+          <div class="author">supplier-analyst · 子 Agent</div>
+          <div class="bubble">
+            <strong>初步结论</strong>：综合 <em>价格</em>、<em>质量合格率</em>（qualityPassRate）、<em>准时交付率</em>（onTimeDeliveryRate）三维度，
+            <strong>S001</strong> 在交付稳定性上最优（96.5%），<strong>S008</strong> 报价最低但合作仅 1 年，
+            <strong>S002</strong> 评级 A + 合作 6 年，是高强度链条这类关键件的更稳选择…
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右侧 TodoListPanel -->
+    <aside class="todo">
+      <div class="todo-head">
+        <div class="h">任务规划 <b>·</b> Task List</div>
+        <div class="num">2 / 4</div>
+      </div>
+      <div class="todo-bar"><span></span></div>
+      <div class="todo-list">
+        <div class="todo-item done">
+          <div class="todo-ico">✓</div>
+          <div>
+            <div class="t">理解用户问题：三家高强度链条比价</div>
+            <div class="meta">三要素 · 候选筛选</div>
+          </div>
+        </div>
+        <div class="todo-item done">
+          <div class="todo-ico">✓</div>
+          <div>
+            <div class="t">调 supplier_search 拉取 S001 / S008 / S002 档案</div>
+            <div class="meta">已返回 3 条</div>
+          </div>
+        </div>
+        <div class="todo-item run">
+          <div class="todo-ico"></div>
+          <div>
+            <div class="t">调 part_search 对比 P001 在三家库存与单价</div>
+            <div class="meta">执行中 · MCP :9100</div>
+          </div>
+        </div>
+        <div class="todo-item">
+          <div class="todo-ico"></div>
+          <div>
+            <div class="t">Rubric 评审 · 输出三家对比表与推荐</div>
+            <div class="meta">待启动 · 第 1 轮</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ══════ Composer ══════ -->
+  <footer class="composer">
+    <div class="composer-inner">
+      <!-- 提示词面板：聚焦态 -->
+      <div class="suggest">
+        <div class="sh">
+          <div class="t">试试这样问</div>
+          <div class="h">点击填入输入框 · 可编辑后回车发送</div>
+        </div>
+        <div class="group">
+          <div class="gt"><span class="em">委派分析</span> · 子 Agent supplier-analyst</div>
+          <button class="item">对比后视镜供应商 S003 与 S005：价格、供货能力、合作风险三角度</button>
+          <button class="item">高强度链条 S001 / S008 / S002 三家比价，推荐最合适</button>
+          <button class="item">对全部 8 家供应商做信用评级分析：评级分 / 合格率 / 准时交付率排序</button>
+        </div>
+        <div class="group">
+          <div class="gt">日常查询</div>
+          <button class="item">钱江 S002 都供应哪些零件？各自的单价与库存</button>
+        </div>
+        <div class="group">
+          <div class="gt">库存与风险排查</div>
+          <button class="item">盘式制动卡钳库存为 0，查它的供应商是否还在合作？会不会断供</button>
+        </div>
+      </div>
+      <div class="box">
+        <textarea rows="2" placeholder=""></textarea>
+        <div class="placeholder">点击输入框查看常用提问示例；或直接提问（Enter 发送，Shift+Enter 换行）</div>
+        <button class="send">发送 ↗</button>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
