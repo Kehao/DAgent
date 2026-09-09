@@ -23,6 +23,8 @@
 @orange-bg:    #fbe7d2;
 @rust:         #a83a1a;        /* 锈红（返工 interrupt） */
 @olive:        #5a6b3b;        /* 橄榄绿（已完成） */
+@todo-anchor-top: 268px;          /* todo 面板/悬浮 fab 默认锚定 top（fixed，视口向下 268px 处） */
+@todo-anchor-right: 16px;         /* todo 面板/悬浮 fab 默认锚定 right（贴右视口边） */
 @olive-bg:     #e8e7c8;
 @mustard:      #c4a14a;        /* 芥末黄（默认 interrupt） */
 @mustard-bg:   #f7eecf;
@@ -69,7 +71,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  position: relative;   /* 作为 todo 面板 absolute 定位的参照系 */
+  position: relative;   /* 预留：todo 面板已改 fixed（视口参照），此处保留以便将来嵌套定位 */
 }
 
 /* ---------- 3) 顶栏：黑底白字 + 暖橙底边（工业铭牌头） ---------- */
@@ -433,13 +435,15 @@ header {
   font-family: @ff-mono;
 }
 
-/* ---------- 6) 任务规划面板（TodoListPanel）：绝对定位 + 可拖拽 ---------- */
-/* 定位参照系 = .app（position: relative）。默认落在右上；
-   按住 todo-head 拖动后，由 React 写入 inline left/top 覆盖默认位置。 */
+/* ---------- 6) 任务规划面板（TodoListPanel）：fixed 定位 + 可拖拽 ---------- */
+/* 定位参照系 = 浏览器视口（fixed，不随页面滚动/布局偏移而移动）。
+   默认锚定位置 = 视口右上 (top: @todo-anchor-top, right: @todo-anchor-right)，
+   展开面板与收起 fab 共享同一锚点变量；按住 todo-head 拖动后，由 React 写入
+   inline left/top 覆盖默认位置（fab 收起态同样跟随）。 */
 .todo-panel {
-  position: absolute;
-  top: 184px;  /* header 约 80 + 装配线 104 */
-  right: 16px;
+  position: fixed;
+  top: @todo-anchor-top;
+  right: @todo-anchor-right;
   width: 264px;
   z-index: 999;
   display: flex;
@@ -554,12 +558,12 @@ header {
   }
 }
 
-/* 收起态：右上小铭牌（absolute，与展开面板同参照系；拖过位置后同样
-   由 inline left/top 覆盖默认右上角） */
+/* 收起态：视口右上小铭牌（fixed，与展开面板同参照系同锚点 @todo-anchor-top/-right；
+   拖过位置后由 inline left/top 覆盖默认锚点） */
 .todo-fab {
-  position: absolute;
-  top: 184px;
-  right: 16px;
+  position: fixed;
+  top: @todo-anchor-top;
+  right: @todo-anchor-right;
   z-index: 999;
   display: flex; align-items: center; justify-content: center;
   gap: 6px;
