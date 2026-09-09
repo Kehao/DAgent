@@ -1,0 +1,28 @@
+# ============================================================
+# DAgent Backend API —— systemd 单元模板（阿里云 ECS 实测可用）
+# ============================================================
+# 安装：见同目录 install.sh
+#
+# 说明：
+#   · Requires/After 声明依赖 dagent-mcp —— 启动时先拉起 MCP，
+#     Agent 初始化时才能连到 :9100 加载业务工具
+#   · ExecStart 用 venv python 跑 src.api.main（FastAPI + uvicorn，
+#     端口默认 8100，可在 .env 用 API_PORT 覆盖）
+#   · API 进程连 MCP 的地址 = .env 的 MCP_SERVER_URL
+# ============================================================
+
+[Unit]
+Description=DAgent Backend API (:8100)
+After=network.target dagent-mcp.service
+Requires=dagent-mcp.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/dagent
+EnvironmentFile=/opt/dagent/.env
+ExecStart=/opt/dagent/.venv/bin/python -m src.api.main
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
