@@ -1,6 +1,7 @@
 <h1 align="center">DAgent —— 企业级多智能体框架</h1>
 
 <p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/code-MIT-blue.svg?style=flat" alt="License MIT"></a>
   <a href="http://47.114.36.224:5173/"><img src="https://img.shields.io/badge/live--demo-brightgreen?style=flat" alt="Live Demo"></a>
   <img src="https://img.shields.io/badge/Python-3.12+-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.12+">
   <img src="https://img.shields.io/badge/LangGraph-1.2-1C3C3C?style=flat" alt="LangGraph">
@@ -282,8 +283,3 @@ React 19 · TypeScript · Vite 8 · Less · zustand（state） · SSE（流式�
 
 LLM：默认 DashScope `qwen-plus`（OpenAI 兼容端点，可在 `src/config.py` + `.env` 切到任意兼容服务）
 
-## 许可与版权
-
-- **本仓库**暂未附带 `LICENSE` 文件，作为参考实现公开——欢迎阅读、学习、fork；fork 后用于商业发布前请自行补充 `LICENSE`。
-- 仓库内业务场景相关的虚拟数据（`src/data/mock_data.py` 的供应商 / 零件档案）专为子 Agent 分析任务设计，可整体替换为你自己的业务系统数据源。
-- 在线预览部署在作者个人阿里云 ECS（agent.kehao.info），仅作演示，不保证 SLA。
