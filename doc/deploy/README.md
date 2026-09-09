@@ -14,7 +14,7 @@ DAgent 是**纯前端 + 两个 Python 常驻服务**，本目录提供在单机�
 ```bash
 # 前置：项目已就位 + venv 已建 + .env 已填
 # 例如项目在 /opt/dagent：
-sudo bash /opt/dagent/deploy/install.sh /opt/dagent
+sudo bash /opt/dagent/doc/deploy/install.sh /opt/dagent
 ```
 
 ## 单元文件关键点
@@ -37,4 +37,4 @@ curl -s http://127.0.0.1:8100/health                # 健康检查
 ## 配套：Nginx 站点（同域反代 /api）
 
 前端静态托管 + `/api/` 反代到 `127.0.0.1:8100` 的 Nginx 配置示例
-与完整部署实录见仓库 README 的「阿里云 ECS 部署实录」章节。
+与完整部署实录见同目录 [`aliyun-deploy.md`](aliyun-deploy.md)。

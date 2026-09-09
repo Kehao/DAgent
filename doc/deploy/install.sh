@@ -3,11 +3,11 @@
 # DAgent —— 安装 systemd 服务（在部署服务器上以 root 执行）
 # ============================================================
 # 用法：
-#   sudo bash deploy/install.sh [/opt/dagent]
+#   sudo bash doc/deploy/install.sh [/opt/dagent]
 #     参数1（可选）：项目根目录，默认 /opt/dagent
 #
 # 效果：
-#   1) 拷贝 deploy/dagent-mcp.service、dagent-api.service 到 /etc/systemd/system
+#   1) 拷贝 install.sh 同目录的 dagent-mcp.service、dagent-api.service 到 /etc/systemd/system
 #   2) 用 sed 把模板里的 /opt/dagent 替换为你的实际项目路径
 #   3) daemon-reload + enable（开机自启）+ start（立即启动）
 #
